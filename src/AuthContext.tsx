@@ -19,25 +19,34 @@ interface AuthorizationProvider
 	authenticate( credentials: Credentials ): boolean
 }
 
-export class ObservableAuthorizationProvider implements AuthorizationProvider
+
+export const AuthContext: Context<AuthorizationProvider> = createContext<AuthorizationProvider>( {
+	isAuthenticated: false,
+	authenticate:    () => false,
+	logout:          () => undefined,
+} )
+
+export interface CustomAuthContextProviderProps
+{
+}
+
+interface CustomAuthContextProviderState
+{
+	isAuthenticated: boolean
+}
+
+export class CustomAuthContextProvider extends Component<CustomAuthContextProviderProps, CustomAuthContextProviderState>
 {
 	
-	private _subscribers: Array<() => any> = []
-	
-	
-	get isAuthenticated(): boolean
-	{
-		return this._getIsAuthenticated()
+	state: CustomAuthContextProviderState = {
+		isAuthenticated: this._getIsAuthenticated(),
 	}
 	
 	
 	logout()
 	{
 		this._setIsAuthenticated( false )
-		
-		this._notify()
 	}
-	
 	
 	
 	authenticate( credentials: Credentials ): boolean
@@ -61,7 +70,7 @@ export class ObservableAuthorizationProvider implements AuthorizationProvider
 	{
 		localStorage.setItem( "isAuthenticated", value.toString() )
 		
-		this._notify()
+		this.setState( { isAuthenticated: value } )
 	}
 	
 	
@@ -71,55 +80,25 @@ export class ObservableAuthorizationProvider implements AuthorizationProvider
 	}
 	
 	
-	subscribe( callback: () => any )
-	{
-		this._subscribers.push( callback )
-	}
-	
-	
-	private _notify()
-	{
-		this._subscribers.forEach( fn => fn() )
-	}
-}
-
-export const AuthContext: Context<AuthorizationProvider> = createContext<AuthorizationProvider>( new ObservableAuthorizationProvider() )
-
-export interface CustomAuthContextProviderProps
-{
-	value: ObservableAuthorizationProvider
-}
-
-export class CustomAuthContextProvider extends Component<CustomAuthContextProviderProps, any>
-{
-	
 	
 	componentDidMount()
 	{
-		this.props.value.subscribe( () => this.forceUpdate() )
 	}
 	
 	
 	render()
 	{
-		const { value: provider } = this.props
 		return (
-			<AuthContext.Provider value={{
-				isAuthenticated: provider.isAuthenticated,
-				logout(): void
-				{
-					provider.logout()
-				},
-				authenticate( credentials: Credentials ): boolean
-				{
-					return provider.authenticate( credentials )
-				},
-			}}>
+			<AuthContext.Provider
+				value={{
+					...this.state,
+					logout:       this.logout.bind( this ),
+					authenticate: this.authenticate.bind( this ),
+				}}
+			>
 				{this.props.children}
 			</AuthContext.Provider>)
 	}
 }
 
-
-export const { Consumer: AuthConsumer } = AuthContext
 export const AuthProvider = CustomAuthContextProvider

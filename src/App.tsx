@@ -3,23 +3,18 @@ import "./App.css";
 import { LoginForm } from "./LoginForm"
 import { Header } from "./Header"
 import { RouteComponentProps, Router } from "@reach/router"
-import { AuthContext, AuthProvider, Credentials, ObservableAuthorizationProvider } from "./AuthContext"
+import { AuthContext, AuthProvider, Credentials } from "./AuthContext"
 
 
 
 
 class App extends Component
 {
-	componentDidMount(): void
-	{
-		// this.authprovider.subscribe( () => this.forceUpdate() )
-	}
-	
 	
 	render()
 	{
 		return (
-			<AuthProvider value={new ObservableAuthorizationProvider()}>
+			<AuthProvider>
 				<div className="App">
 					<Header/>
 					
@@ -38,7 +33,6 @@ class App extends Component
 		);
 		
 	}
-	
 }
 
 export default App;
