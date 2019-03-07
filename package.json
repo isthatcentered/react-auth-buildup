@@ -29,6 +29,7 @@
   ],
   "devDependencies": {
     "@types/query-string": "^6.2.0",
-    "query-string": "^6.3.0"
+    "query-string": "^6.3.0",
+    "tailwindcss": "^0.7.4"
   }
 }

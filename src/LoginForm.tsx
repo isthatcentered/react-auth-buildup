@@ -43,26 +43,46 @@ export function LoginForm( { style = {}, className = "", children, ...props }: L
 			className={`${className} LoginForm`}
 		>
 			<form onSubmit={handleSubmit}>
-				<label>
+				
+				<h2 className="text-purple">Login</h2>
+				
+				<div className="pt-4"/>
+				
+				<label
+					className="block"
+				>
 					<input
 						autoFocus
 						type="text"
-						placeholder="email"
+						placeholder="Email"
 						name="email"
 						value={email}
 						onChange={e => setEmail( e.target.value )}
+						className="border rounded px-3 py-2"
 					/>
 				</label>
-				<label>
+				
+				<div className="pt-4"/>
+				
+				<label
+					className="block"
+				>
 					<input
 						type="password"
-						placeholder="password"
+						placeholder="Password"
 						name="password"
 						value={password}
 						onChange={e => setPassword( e.target.value )}
+						className="border rounded px-3 py-2"
 					/>
 				</label>
-				<button type="submit">Log In</button>
+				
+				<div className="pt-4"/>
+				
+				<button
+					className="rounded border px-3 py-2 bg-purple text-white border-purple-dark"
+					type="submit">Log In
+				</button>
 			</form>
 		</div>
 	)

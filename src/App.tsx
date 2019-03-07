@@ -1,6 +1,5 @@
-import React, { Component } from "react";
+import React, { Component, HTMLAttributes } from "react";
 import "./App.css";
-import { stringify } from "query-string"
 import { LoginForm } from "./LoginForm"
 
 
@@ -61,29 +60,49 @@ class App extends Component
 	{
 		return (
 			<div className="App">
-				{!authprovider.isAuthenticated ?
-				 <LoginForm authProvider={authprovider}/> :
-				 <p>Logged in 🥳</p>}
+				
+				<Header authProvider={authprovider}/>
+				
+				<main className="p-4">
+					{!this.isLoggedIn() ?
+					 <LoginForm authProvider={authprovider}/> :
+					 <p className="text-xl">🥳</p>
+					}
+				</main>
 			</div>
 		);
 	}
 	
 	
-	private _authLink(): string
+	private isLoggedIn()
 	{
-		const params: string = stringify( {
-			response_type: `token`,
-			grant_type:    `implicit`,
-			client_id:     `a2909cb9-1b26-41af-be34-67bf405872f7`,
-			redirect_uri:  `http://localhost:3000`,
-			scope:         `https://graph.microsoft.com/Calendars.ReadWrite`,
-		} )
-		
-		
-		return `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?${params}`
+		return authprovider.isAuthenticated
 	}
 }
 
 export default App;
 
 
+export interface HeaderProps extends HTMLAttributes<HTMLDivElement>
+{
+	authProvider: AuthProvider
+}
+
+
+export function Header( { authProvider, style = {}, className = "", children, ...props }: HeaderProps )
+{
+	
+	return (
+		<div
+			{...props}
+			style={{ ...style }}
+			className={`${className} Header flex p-4 bg-purple`}
+		>
+			<div className="ml-auto">
+				{!authprovider.isAuthenticated ?
+				 <a href="/login">Log in</a> :
+				 <p>Logged in 🥳</p>}
+			</div>
+		</div>
+	)
+}
