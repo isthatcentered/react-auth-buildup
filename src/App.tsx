@@ -1,4 +1,4 @@
-import React, { Component, HTMLAttributes } from "react";
+import React, { Component, HTMLAttributes, useEffect } from "react";
 import "./App.css";
 import { LoginForm } from "./LoginForm"
 import { Header } from "./Header"
@@ -19,14 +19,6 @@ export class AuthProvider
 	}
 	
 	
-	set isAuthenticated( value: boolean )
-	{
-		this._setIsAuthenticated( value )
-		
-		this._notify()
-	}
-	
-	
 	logout()
 	{
 		this._setIsAuthenticated( false )
@@ -36,9 +28,28 @@ export class AuthProvider
 	
 	
 	
+	authenticate( credentials: Credentials ): boolean
+	{
+		function isValidUser( { email, password }: Credentials )
+		{
+			const users: Credentials[] = [ { email: "admin", password: "admin" } ],
+			      hasMatch             = !!users.find( u => u.email === email && u.password === password )
+			
+			return hasMatch
+		}
+		
+		
+		this._setIsAuthenticated( isValidUser( credentials ) )
+		
+		return this._getIsAuthenticated()
+	}
+	
+	
 	private _setIsAuthenticated( value: boolean )
 	{
 		localStorage.setItem( "isAuthenticated", value.toString() )
+		
+		this._notify()
 	}
 	
 	
@@ -131,21 +142,15 @@ export interface LoginPageProps extends HTMLAttributes<HTMLDivElement>, RouteCom
 
 export function LoginPage( { authProvider, style = {}, className = "", children, navigate, location, ...props }: LoginPageProps )
 {
-	function isValidUser( { email, password }: Credentials )
-	{
-		const users: Credentials[] = [ { email: "admin", password: "admin" } ],
-		      hasMatch             = users.find( u => u.email === email && u.password === password )
-		
-		return hasMatch
-	}
+	useEffect( () => {
+		if ( authProvider.isAuthenticated )
+			navigate!( "/" )
+	} )
 	
 	
 	function handleLogin( credentials: Credentials )
 	{
-		if ( isValidUser( credentials ) ) {
-			authProvider.isAuthenticated = true
-			navigate!( "/" )
-		}
+		authProvider.authenticate( credentials )
 	}
 	
 	
