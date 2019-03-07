@@ -1,22 +1,23 @@
-import React, { HTMLAttributes } from "react"
-import { AuthProvider } from "./App"
-import { navigate } from "@reach/router"
+import React, { HTMLAttributes, useContext } from "react"
+import { Link, navigate } from "@reach/router"
+import { AuthContext } from "./AuthContext"
 
 
 
 
 export interface HeaderProps extends HTMLAttributes<HTMLDivElement>
 {
-	authProvider: AuthProvider
 }
 
 
-export function Header( { authProvider, style = {}, className = "", children, ...props }: HeaderProps )
+export function Header( { style = {}, className = "", children, ...props }: HeaderProps )
 {
+	const context = useContext( AuthContext )
+	
 	
 	function handleLogout()
 	{
-		authProvider.logout()
+		context.logout()
 		
 		navigate( "/login" )
 	}
@@ -29,14 +30,17 @@ export function Header( { authProvider, style = {}, className = "", children, ..
 			className={`${className} Header flex p-4 bg-purple`}
 		>
 			<div className="ml-auto">
-				{!authProvider.isAuthenticated ?
-				 <a href="/login">Log in</a> :
+				{!context.isAuthenticated ?
+				 <Link to="/login">Log in</Link> :
+				
 				 <button
 					 onClick={handleLogout}
 					 className="text-white underline"
 				 >
 					 Logout
-				 </button>}
+				 </button>
+				}
+			
 			</div>
 		</div>
 	)

@@ -1,5 +1,5 @@
 import React, { FormEvent, HTMLAttributes, useState } from "react"
-import { AuthProvider, Credentials } from "./App"
+import { Credentials } from "./AuthContext"
 import { Button } from "./Random"
 
 
@@ -7,17 +7,15 @@ import { Button } from "./Random"
 
 export interface LoginFormProps extends HTMLAttributes<HTMLDivElement>
 {
-	authProvider: AuthProvider
 	onLogin: ( credentials: Credentials ) => any
 }
 
 
-export function LoginForm( { authProvider, onLogin, style = {}, className = "", children, ...props }: LoginFormProps )
+export function LoginForm( { onLogin, style = {}, className = "", children, ...props }: LoginFormProps )
 {
 	
 	const [ email, setEmail ]       = useState( "" ),
 	      [ password, setPassword ] = useState( "" )
-	
 	
 	
 	
