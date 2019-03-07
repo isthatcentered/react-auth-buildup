@@ -26,5 +26,9 @@
     "not dead",
     "not ie <= 11",
     "not op_mini all"
-  ]
+  ],
+  "devDependencies": {
+    "@types/query-string": "^6.2.0",
+    "query-string": "^6.3.0"
+  }
 }

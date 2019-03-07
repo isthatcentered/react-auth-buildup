@@ -1,28 +1,89 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import "./App.css";
+import { stringify } from "query-string"
+import { LoginForm } from "./LoginForm"
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.tsx</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
-    );
-  }
+
+
+
+export class AuthProvider
+{
+	
+	private _isAuthenticated: boolean = false
+	
+	private _subscribers: Array<() => any> = []
+	
+	
+	get isAuthenticated()
+	{
+		return this._isAuthenticated
+	}
+	
+	
+	set isAuthenticated( value: boolean )
+	{
+		this._isAuthenticated = value
+		
+		this._notify()
+	}
+	
+	
+	subscribe( callback: () => any )
+	{
+		this._subscribers.push( callback )
+	}
+	
+	
+	private _notify()
+	{
+		this._subscribers.forEach( fn => fn() )
+	}
+}
+
+export const authprovider = new AuthProvider()
+
+export interface Credentials
+{
+	email: string,
+	password: string
+}
+
+class App extends Component
+{
+	
+	componentDidMount(): void
+	{
+		authprovider.subscribe( () => this.forceUpdate() )
+	}
+	
+	
+	render()
+	{
+		return (
+			<div className="App">
+				{!authprovider.isAuthenticated ?
+				 <LoginForm authProvider={authprovider}/> :
+				 <p>Logged in 🥳</p>}
+			</div>
+		);
+	}
+	
+	
+	private _authLink(): string
+	{
+		const params: string = stringify( {
+			response_type: `token`,
+			grant_type:    `implicit`,
+			client_id:     `a2909cb9-1b26-41af-be34-67bf405872f7`,
+			redirect_uri:  `http://localhost:3000`,
+			scope:         `https://graph.microsoft.com/Calendars.ReadWrite`,
+		} )
+		
+		
+		return `https://login.microsoftonline.com/common/oauth2/v2.0/authorize?${params}`
+	}
 }
 
 export default App;
+
+
