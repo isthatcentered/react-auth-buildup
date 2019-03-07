@@ -1,5 +1,6 @@
 import React, { FormEvent, HTMLAttributes, useState } from "react"
-import { AuthProvider, authprovider, Credentials } from "./App"
+import { AuthProvider, Credentials } from "./App"
+import { Button } from "./Random"
 
 
 
@@ -7,32 +8,24 @@ import { AuthProvider, authprovider, Credentials } from "./App"
 export interface LoginFormProps extends HTMLAttributes<HTMLDivElement>
 {
 	authProvider: AuthProvider
+	onLogin: ( credentials: Credentials ) => any
 }
 
 
-export function LoginForm( { style = {}, className = "", children, ...props }: LoginFormProps )
+export function LoginForm( { authProvider, onLogin, style = {}, className = "", children, ...props }: LoginFormProps )
 {
 	
 	const [ email, setEmail ]       = useState( "" ),
 	      [ password, setPassword ] = useState( "" )
 	
 	
-	function isValidUser( { email, password }: Credentials )
-	{
-		const users: Credentials[] = [ { email: "admin", password: "admin" } ],
-		      hasMatch             = users.find( u => u.email === email && u.password === password )
-		
-		return hasMatch
-	}
 	
 	
 	function handleSubmit( e: FormEvent<HTMLFormElement> )
 	{
 		e.preventDefault()
 		
-		return isValidUser( { email: email, password } ) ?
-		       authprovider.isAuthenticated = true :
-		       authprovider.isAuthenticated = true
+		onLogin( { email, password } )
 	}
 	
 	
@@ -79,10 +72,11 @@ export function LoginForm( { style = {}, className = "", children, ...props }: L
 				
 				<div className="pt-4"/>
 				
-				<button
-					className="rounded border px-3 py-2 bg-purple text-white border-purple-dark"
-					type="submit">Log In
-				</button>
+				<Button
+					type="submit"
+				>
+					Log In
+				</Button>
 			</form>
 		</div>
 	)

@@ -1,6 +1,8 @@
 import React, { Component, HTMLAttributes } from "react";
 import "./App.css";
 import { LoginForm } from "./LoginForm"
+import { Header } from "./Header"
+import { RouteComponentProps, Router } from "@reach/router"
 
 
 
@@ -8,22 +10,41 @@ import { LoginForm } from "./LoginForm"
 export class AuthProvider
 {
 	
-	private _isAuthenticated: boolean = false
-	
 	private _subscribers: Array<() => any> = []
 	
 	
 	get isAuthenticated()
 	{
-		return this._isAuthenticated
+		return this._getIsAuthenticated()
 	}
 	
 	
 	set isAuthenticated( value: boolean )
 	{
-		this._isAuthenticated = value
+		this._setIsAuthenticated( value )
 		
 		this._notify()
+	}
+	
+	
+	logout()
+	{
+		this._setIsAuthenticated( false )
+		
+		this._notify()
+	}
+	
+	
+	
+	private _setIsAuthenticated( value: boolean )
+	{
+		localStorage.setItem( "isAuthenticated", value.toString() )
+	}
+	
+	
+	private _getIsAuthenticated()
+	{
+		return JSON.parse( localStorage.getItem( "isAuthenticated" ) || "false" )
 	}
 	
 	
@@ -39,7 +60,6 @@ export class AuthProvider
 	}
 }
 
-export const authprovider = new AuthProvider()
 
 export interface Credentials
 {
@@ -49,10 +69,12 @@ export interface Credentials
 
 class App extends Component
 {
+	authprovider: AuthProvider = new AuthProvider()
+	
 	
 	componentDidMount(): void
 	{
-		authprovider.subscribe( () => this.forceUpdate() )
+		this.authprovider.subscribe( () => this.forceUpdate() )
 	}
 	
 	
@@ -61,48 +83,82 @@ class App extends Component
 		return (
 			<div className="App">
 				
-				<Header authProvider={authprovider}/>
+				<Header authProvider={this.authprovider}/>
 				
 				<main className="p-4">
-					{!this.isLoggedIn() ?
-					 <LoginForm authProvider={authprovider}/> :
-					 <p className="text-xl">🥳</p>
-					}
+					<Router>
+						<HomePage authProvider={this.authprovider}
+						          path="/"/>
+						<LoginPage authProvider={this.authprovider}
+						           path="/login"/>
+					</Router>
 				</main>
 			</div>
 		);
-	}
-	
-	
-	private isLoggedIn()
-	{
-		return authprovider.isAuthenticated
 	}
 }
 
 export default App;
 
 
-export interface HeaderProps extends HTMLAttributes<HTMLDivElement>
+
+export interface HomePageProps extends HTMLAttributes<HTMLDivElement>, RouteComponentProps
 {
 	authProvider: AuthProvider
 }
 
 
-export function Header( { authProvider, style = {}, className = "", children, ...props }: HeaderProps )
+export function HomePage( { authProvider, style = {}, className = "", children, navigate, location, ...props }: HomePageProps )
 {
 	
 	return (
 		<div
 			{...props}
 			style={{ ...style }}
-			className={`${className} Header flex p-4 bg-purple`}
+			className={`${className} HomePage`}
 		>
-			<div className="ml-auto">
-				{!authprovider.isAuthenticated ?
-				 <a href="/login">Log in</a> :
-				 <p>Logged in 🥳</p>}
-			</div>
+			'sup! 🥳
+		</div>
+	)
+}
+
+
+export interface LoginPageProps extends HTMLAttributes<HTMLDivElement>, RouteComponentProps
+{
+	authProvider: AuthProvider
+}
+
+
+export function LoginPage( { authProvider, style = {}, className = "", children, navigate, location, ...props }: LoginPageProps )
+{
+	function isValidUser( { email, password }: Credentials )
+	{
+		const users: Credentials[] = [ { email: "admin", password: "admin" } ],
+		      hasMatch             = users.find( u => u.email === email && u.password === password )
+		
+		return hasMatch
+	}
+	
+	
+	function handleLogin( credentials: Credentials )
+	{
+		if ( isValidUser( credentials ) ) {
+			authProvider.isAuthenticated = true
+			navigate!( "/" )
+		}
+	}
+	
+	
+	return (
+		<div
+			{...props}
+			style={{ ...style }}
+			className={`${className} LoginPage`}
+		>
+			<LoginForm
+				authProvider={authProvider}
+				onLogin={handleLogin}
+			/>
 		</div>
 	)
 }

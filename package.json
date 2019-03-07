@@ -28,7 +28,9 @@
     "not op_mini all"
   ],
   "devDependencies": {
+    "@reach/router": "^1.2.1",
     "@types/query-string": "^6.2.0",
+    "@types/reach__router": "^1.2.3",
     "query-string": "^6.3.0",
     "tailwindcss": "^0.7.4"
   }
