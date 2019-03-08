@@ -1,0 +1,19 @@
+{
+    "name": "api",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "start": "tsnd --respawn src/server.ts",
+        "build": "tsc",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "Edouard Penin <e.peninb@gmail.com>",
+    "license": "ISC",
+    "devDependencies": {
+        "@types/express": "^4.16.1",
+        "express": "^4.16.4",
+        "ts-node-dev": "^1.0.0-pre.32"
+    }
+}
