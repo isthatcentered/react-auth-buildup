@@ -54,7 +54,7 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 	{
 		return Axios.post( `/api/authenticate`, {
 				...credentials,
-			} )
+			}, { withCredentials: true } )
 			.then( res => {
 				this._setIsAuthenticated( true )
 				

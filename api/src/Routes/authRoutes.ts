@@ -11,7 +11,7 @@ const authenticateUserController: RequestHandler = ( req: Request, res: Response
 	const { email, password }: AuthCredentials = req.body,
 	      user: User                           = UserFactory.from( { email, password } )
 	
-	uncover( "session" )( req.session )
+	uncover( "session id" )( req.session!.id )
 	
 	try {
 		const pass = user.authenticate( password )
