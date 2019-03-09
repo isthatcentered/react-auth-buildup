@@ -13,3 +13,5 @@ export const db = low( adapter )
 
 db.defaults( { users: [] } )
 	.write()
+
+db.get( "sqd", "qsd" )

@@ -1,5 +1,7 @@
 import { db } from "./database"
 import { compareSync, genSaltSync, hashSync } from "bcryptjs"
+import { UserAlreadyRegisteredError} from "../Errors"
+import { IncorrectCredentialsError, UserNotRegisteredError } from "../Errors"
 
 
 
@@ -22,7 +24,6 @@ interface userModel extends AuthCredentials
 export interface User
 {
 	authenticate: ( password: string ) => Pass
-	registered: () => boolean
 	save: () => void
 	register: () => void
 }
@@ -56,15 +57,9 @@ class RegisteredUser implements User
 	}
 	
 	
-	registered()
-	{
-		return true
-	}
-	
-	
 	register()
 	{
-		throw new Error( `User already registered` )
+		throw new UserAlreadyRegisteredError()
 	}
 	
 	
@@ -79,7 +74,7 @@ class RegisteredUser implements User
 		const passwordMatching = compareSync( password, this.__model.password )
 		
 		if ( !passwordMatching )
-			throw new Error( `Incorrect redentials` )
+			throw new IncorrectCredentialsError()
 		
 		return {
 			token: Math.random().toString(),
@@ -97,12 +92,6 @@ class UnregisteredUser implements User
 	{
 		this.__email = email
 		this.__password = this.__hashPassword( password )
-	}
-	
-	
-	registered()
-	{
-		return false
 	}
 	
 	
@@ -125,7 +114,7 @@ class UnregisteredUser implements User
 	
 	authenticate( password: string ): Pass
 	{
-		throw new Error( `User "${this.__email}" has not been saved yet` )
+		throw new UserNotRegisteredError()
 	}
 	
 	

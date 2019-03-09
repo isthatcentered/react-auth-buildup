@@ -16,11 +16,10 @@ const authenticateUserController: RequestHandler = ( req: Request, res: Response
 		return res
 			.status( 200 )
 			.json( pass )
-	} catch ( error ) {
-		
+	} catch ( { name, message } ) {
 		return res
 			.status( 401 )
-			.json( { message: "Nope, unauthorized", error } )
+			.json( { error: { message, name } } )
 	}
 }
 

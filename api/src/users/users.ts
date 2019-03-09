@@ -16,10 +16,10 @@ const createUserController: RequestHandler = ( req: Request, res: Response, next
 		return res
 			.status( 201 )
 			.json( { email } )
-	} catch ( error ) {
+	} catch ( { name, message } ) {
 		return res
 			.status( 422 )
-			.json( { error: `Email already taken` } )
+			.json( { error: { name, message } } )
 	}
 }
 
