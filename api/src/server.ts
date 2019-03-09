@@ -1,7 +1,7 @@
 import express from "express"
 import bodyParser from "body-parser"
-import { usersRouter } from "./users/users"
-import { authRouter } from "./users/auth"
+import { usersRouter } from "./Routes/usersRoutes"
+import { authRouter } from "./Routes/authRoutes"
 
 // https://github.com/BrianDGLS/express-ts
 

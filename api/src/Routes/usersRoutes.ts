@@ -1,5 +1,5 @@
 import { NextFunction, Request, RequestHandler, Response, Router } from "express"
-import { AuthCredentials, User, UserFactory } from "./UserModel"
+import { AuthCredentials, User, UserFactory } from "../UserModel"
 import { requireFieldsGuard } from "../middlewares"
 
 
