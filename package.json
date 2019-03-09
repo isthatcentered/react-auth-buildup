@@ -12,6 +12,7 @@
         "react-scripts": "2.1.5",
         "typescript": "3.3.3333"
     },
+    "proxy": "http://localhost:4001",
     "scripts": {
         "start": "react-scripts start & yarn server:start",
         "server:start": "cd ./api && yarn start",
