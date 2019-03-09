@@ -1,10 +1,15 @@
 import { db } from "./database"
 import { compare } from "bcryptjs"
-import { AuthCredentials } from "./users"
 import { uncover } from "redhanded"
 
 
 
+
+export interface AuthCredentials
+{
+	email: string
+	password: string
+}
 
 export class User
 {
@@ -25,6 +30,7 @@ export class User
 				}
 			} )
 	}
+	
 	
 	
 	static find( filters: { [ key: string ]: any } ): Promise<AuthCredentials>

@@ -2,30 +2,16 @@ import { NextFunction, Request, RequestHandler, Response, Router } from "express
 import { db } from "./database"
 import { genSalt, hash } from "bcryptjs"
 import { uncover } from "redhanded"
+import { AuthCredentials } from "./UserModel"
+import { requireFieldsGuard } from "../middlewares"
 
 
-
-
-export interface AuthCredentials
-{
-	email: string
-	password: string
-}
 
 
 const createUserController: RequestHandler = ( req: Request, res: Response, next: NextFunction ) => {
 	
 	const { email, password } = req.body,
 	      users               = db.get( "users" )
-	
-	
-	if ( incompleteCredentials() )
-		return res.status( 400 )
-			.json( {
-				message: `Required field missing`,
-			} )
-			.end()
-	
 	
 	if ( userAlreadyExists() )// @todo: if time/bored, this should go as db._ mixin .createUnique(user, "email")
 		return res.status( 422 )
@@ -51,13 +37,6 @@ const createUserController: RequestHandler = ( req: Request, res: Response, next
 		)
 	
 	
-	
-	function incompleteCredentials()
-	{
-		return !email || !password
-	}
-	
-	
 	function userAlreadyExists()
 	{
 		return !!users
@@ -71,7 +50,7 @@ export const usersRouter = Router()
 
 usersRouter
 	.route( "/" )
-	.post( createUserController )
+	.post( requireFieldsGuard( "email", "password" ), createUserController )
 
 
 
