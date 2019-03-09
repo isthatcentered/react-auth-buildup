@@ -1,6 +1,5 @@
 import { db } from "./database"
-import { compare, compareSync, genSaltSync, hashSync } from "bcryptjs"
-import { uncover } from "redhanded"
+import { compareSync, genSaltSync, hashSync } from "bcryptjs"
 
 
 
@@ -25,41 +24,6 @@ export interface User
 
 export class UserFactory
 {
-	static logIn( { email, password }: AuthCredentials ): Promise<{ email: string, token: string }>
-	{
-		
-		return UserFactory.find( { email } )
-			.then( uncover( "MATCH" ) )
-			.then( match =>
-				compare( password, match.password ) )
-			.then( passwordIsOk => {
-				if ( !passwordIsOk )
-					throw new Error( `Unauthorized` )
-				
-				return {
-					email,
-					token: "ljhkgjfhdgshgfhgjkhlhmj",
-				}
-			} )
-	}
-	
-	
-	
-	static find( filters: { [ key: string ]: any } ): Promise<AuthCredentials>
-	{
-		return new Promise( ( resolve, reject ) => {
-			
-			const match: AuthCredentials | undefined = db.get( "users" ).find( filters ).value()
-			
-			uncover( "MATCH?" )( match )
-			if ( !match )
-				reject( { message: `No user matching filters ${Object.keys( filters )} found` } )
-			
-			resolve( match )
-		} )
-	}
-	
-	
 	static from( credentials: AuthCredentials )
 	{
 		const inDbMatch: userModel = db.get( "users" ).find( { email: credentials.email } ).value()
