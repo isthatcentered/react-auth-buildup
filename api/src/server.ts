@@ -1,6 +1,7 @@
 import express from "express"
 import bodyParser from "body-parser"
 import { usersRouter } from "./users/users"
+import { authRouter } from "./users/auth"
 
 // https://github.com/BrianDGLS/express-ts
 
@@ -21,5 +22,6 @@ app.listen( PORT, function () {
 } );
 
 
-app.use( "/api/users", usersRouter )
 
+app.use( "/api/users", usersRouter )
+app.use( "/api/authenticate", authRouter )

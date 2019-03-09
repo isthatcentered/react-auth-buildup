@@ -6,7 +6,7 @@ import { uncover } from "redhanded"
 
 
 
-export interface SignupCredentials
+export interface AuthCredentials
 {
 	email: string
 	password: string
@@ -40,7 +40,7 @@ const createUserController: RequestHandler = ( req: Request, res: Response, next
 				.push( { email, password: hashedPassword } )
 				.write() )
 		.then( uncover( "AfterUserSaved" ) )
-		.then( ( users: SignupCredentials[] ) =>
+		.then( ( users: AuthCredentials[] ) =>
 			res
 				.status( 201 )
 				.json( { email } ) )
