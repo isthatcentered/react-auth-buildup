@@ -15,6 +15,10 @@ interface Pass
 	token: string
 }
 
+interface userModel extends AuthCredentials
+{
+}
+
 export interface User
 {
 	authenticate: ( password: string ) => Pass
@@ -24,21 +28,20 @@ export interface User
 
 export class UserFactory
 {
-	static from( credentials: AuthCredentials )
+	static from( credentials: AuthCredentials ): User
 	{
-		const inDbMatch: userModel = db.get( "users" ).find( { email: credentials.email } ).value()
+		const inDbMatch = UserFactory.find( { email: credentials.email } )
 		
-		if ( !!inDbMatch )
-			return new RegisteredUser( inDbMatch )
-		
-		return new UnregisteredUser( credentials )
+		return !!inDbMatch ?
+		       new RegisteredUser( inDbMatch ) :
+		       new UnregisteredUser( credentials )
 	}
-}
-
-interface userModel
-{
-	email: string
-	password: string
+	
+	
+	private static find( filters: Record<string, any> ): userModel | undefined
+	{
+		return db.get( "users" ).find( filters ).value()
+	}
 }
 
 class RegisteredUser implements User
