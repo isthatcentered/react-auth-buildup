@@ -1,5 +1,5 @@
 import { NextFunction, Request, RequestHandler, Response, Router } from "express"
-import { IUser, User } from "./UserModel"
+import { User, UserFactory } from "./UserModel"
 import { requireFieldsGuard } from "../middlewares"
 
 
@@ -9,7 +9,7 @@ const createUserController: RequestHandler = ( req: Request, res: Response, next
 	
 	const { email, password } = req.body
 	
-	const user: IUser = User.from( { email, password } )
+	const user: User = UserFactory.from( { email, password } )
 	
 	if ( user.registered() )
 		return res.status( 422 )
@@ -19,7 +19,6 @@ const createUserController: RequestHandler = ( req: Request, res: Response, next
 			.end()
 	
 	try {
-		
 		user.save()
 		
 		return res

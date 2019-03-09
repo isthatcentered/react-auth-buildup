@@ -1,5 +1,5 @@
 import { db } from "./database"
-import { compare, genSaltSync, hashSync } from "bcryptjs"
+import { compare, compareSync, genSaltSync, hashSync } from "bcryptjs"
 import { uncover } from "redhanded"
 
 
@@ -16,19 +16,19 @@ interface Pass
 	token: string
 }
 
-export interface IUser
+export interface User
 {
 	authenticate: ( password: string ) => Pass
 	registered: () => boolean
 	save: () => void
 }
 
-export class User
+export class UserFactory
 {
 	static logIn( { email, password }: AuthCredentials ): Promise<{ email: string, token: string }>
 	{
 		
-		return User.find( { email } )
+		return UserFactory.find( { email } )
 			.then( uncover( "MATCH" ) )
 			.then( match =>
 				compare( password, match.password ) )
@@ -77,7 +77,7 @@ interface userModel
 	password: string
 }
 
-class RegisteredUser implements IUser
+class RegisteredUser implements User
 {
 	private __model: userModel
 	
@@ -94,7 +94,7 @@ class RegisteredUser implements IUser
 	}
 	
 	
-	save(): IUser
+	save(): User
 	{
 		throw new Error( `save() not implemented` )
 	}
@@ -102,11 +102,18 @@ class RegisteredUser implements IUser
 	
 	authenticate( password: string ): Pass
 	{
-		throw new Error( `authenticate() not implemented` )
+		const passwordMatching = compareSync( password, this.__model.password )
+		
+		if ( !passwordMatching )
+			throw new Error( `Incorrect redentials` )
+		
+		return {
+			token: Math.random().toString(),
+		}
 	}
 }
 
-class UnregisteredUser implements IUser
+class UnregisteredUser implements User
 {
 	private readonly __email: string
 	private __password: string
@@ -125,13 +132,14 @@ class UnregisteredUser implements IUser
 	}
 	
 	
-	save(): IUser
+	save(): User
 	{
-		const users: userModel[] = db.get( "users" )
+		const user: userModel = (db.get( "users" )
 			.push( { email: this.__email, password: this.__password } )
-			.write()
+			.write() as userModel[])
+			.pop()!
 		
-		return User.from( users[ users.length - 1 ] ) // we push so last is new
+		return UserFactory.from( user ) // we push so last is new
 	}
 	
 	
@@ -148,14 +156,3 @@ class UnregisteredUser implements IUser
 		return hashSync( password, salt )
 	}
 }
-
-/*
-class UnregisteredUser implements IUser
-{
-	authenticate: ( password: string ) => Pass
-	email: string
-	registered: () => boolean
-	save: () => void
-	
-}
-*/
