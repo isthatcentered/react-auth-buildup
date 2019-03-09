@@ -1,11 +1,11 @@
-import { NextFunction, Request, RequestHandler, Response, Router } from "express"
+import { Request, RequestHandler, Response, Router } from "express"
 import { User } from "./UserModel"
 import { requireFieldsGuard } from "../middlewares"
 
 
 
 
-const authenticateUserController: RequestHandler = ( req: Request, res: Response, next: NextFunction ) => {
+const authenticateUserController: RequestHandler = ( req: Request, res: Response ) => {
 	
 	const { email, password } = req.body
 	
