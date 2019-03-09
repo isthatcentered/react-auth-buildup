@@ -19,7 +19,7 @@ const createUserController: RequestHandler = ( req: Request, res: Response, next
 	} catch ( { name, message } ) {
 		return res
 			.status( 422 )
-			.json( { error: { name, message } } )
+			.json( { name, message } )
 	}
 }
 

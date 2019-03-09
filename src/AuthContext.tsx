@@ -1,5 +1,6 @@
 import * as React from "react"
 import { Component, Context, createContext } from "react"
+import Axios from "axios"
 
 
 
@@ -16,13 +17,13 @@ interface AuthorizationProvider
 	
 	logout(): void
 	
-	authenticate( credentials: Credentials ): boolean
+	authenticate( credentials: Credentials ): Promise<boolean>
 }
 
 
 export const AuthContext: Context<AuthorizationProvider> = createContext<AuthorizationProvider>( {
 	isAuthenticated: false,
-	authenticate:    () => false,
+	authenticate:    () => Promise.resolve( false ),
 	logout:          () => undefined,
 } )
 
@@ -49,20 +50,19 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 	}
 	
 	
-	authenticate( credentials: Credentials ): boolean
+	authenticate( credentials: Credentials ): Promise<boolean>
 	{
-		function isValidUser( { email, password }: Credentials )
-		{
-			const users: Credentials[] = [ { email: "admin", password: "admin" } ],
-			      hasMatch             = !!users.find( u => u.email === email && u.password === password )
-			
-			return hasMatch
-		}
-		
-		
-		this._setIsAuthenticated( isValidUser( credentials ) )
-		
-		return this._getIsAuthenticated()
+		return Axios.post( `/api/authenticate`, {
+				...credentials,
+			} )
+			.then( res => {
+				this._setIsAuthenticated( true )
+				
+				return this._getIsAuthenticated()
+			} )
+			.catch( ( { response: { data } } ) => {
+				throw new Error( data.message )
+			} )
 	}
 	
 	

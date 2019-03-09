@@ -1,4 +1,4 @@
-import React, { HTMLAttributes, useContext, useEffect } from "react"
+import React, { HTMLAttributes, useContext, useEffect, useState } from "react"
 import { AuthContext, Credentials } from "./AuthContext"
 import { LoginForm } from "./LoginForm"
 import { RouteComponentProps } from "@reach/router"
@@ -13,7 +13,8 @@ export interface LoginPageProps extends HTMLAttributes<HTMLDivElement>, RouteCom
 
 export function LoginPage( { style = {}, className = "", children, navigate, location, ...props }: LoginPageProps )
 {
-	const authProvider = useContext( AuthContext )
+	const authProvider        = useContext( AuthContext ),
+	      [ error, setError ] = useState( "" )
 	
 	useEffect( () => {
 		if ( authProvider.isAuthenticated )
@@ -23,7 +24,9 @@ export function LoginPage( { style = {}, className = "", children, navigate, loc
 	
 	function handleLogin( credentials: Credentials )
 	{
-		authProvider.authenticate( credentials )
+		authProvider
+			.authenticate( credentials )
+			.catch( ( { message }: Error ) => setError( message ) )
 	}
 	
 	
@@ -33,6 +36,11 @@ export function LoginPage( { style = {}, className = "", children, navigate, loc
 			style={{ ...style }}
 			className={`${className} LoginPage`}
 		>
+			{error && (
+				<div className="p-4 border border-red bg-red-lightest text-red font-bold mb-4">
+					😱 {error}
+				</div>)}
+			
 			<LoginForm
 				onLogin={handleLogin}
 			/>

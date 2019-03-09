@@ -30,7 +30,7 @@ const authenticateUserController: RequestHandler = ( req: Request, res: Response
 	} catch ( { name, message } ) {
 		return res
 			.status( 401 )
-			.json( { error: { message, name } } )
+			.json( { message, name } )
 	}
 }
 
