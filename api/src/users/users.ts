@@ -87,3 +87,4 @@ export const hashPassword = ( password: string ): Promise<string> =>
 				resolve( hash ),
 			),
 		) )
+
