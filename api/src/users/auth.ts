@@ -1,5 +1,5 @@
 import { Request, RequestHandler, Response, Router } from "express"
-import { User, UserFactory } from "./UserModel"
+import { AuthCredentials, User, UserFactory } from "./UserModel"
 import { requireFieldsGuard } from "../middlewares"
 
 
@@ -7,9 +7,8 @@ import { requireFieldsGuard } from "../middlewares"
 
 const authenticateUserController: RequestHandler = ( req: Request, res: Response ) => {
 	
-	const { email, password } = req.body
-	
-	const user: User = UserFactory.from( { email, password } )
+	const { email, password }: AuthCredentials = req.body,
+	      user: User                           = UserFactory.from( { email, password } )
 	
 	try {
 		const pass = user.authenticate( password )

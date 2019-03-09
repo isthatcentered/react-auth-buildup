@@ -1,5 +1,5 @@
 import { NextFunction, Request, RequestHandler, Response, Router } from "express"
-import { User, UserFactory } from "./UserModel"
+import { AuthCredentials, User, UserFactory } from "./UserModel"
 import { requireFieldsGuard } from "../middlewares"
 
 
@@ -7,27 +7,19 @@ import { requireFieldsGuard } from "../middlewares"
 
 const createUserController: RequestHandler = ( req: Request, res: Response, next: NextFunction ) => {
 	
-	const { email, password } = req.body
-	
-	const user: User = UserFactory.from( { email, password } )
-	
-	if ( user.registered() )
-		return res.status( 422 )
-			.json( {
-				message: `Email already taken`,
-			} )
-			.end()
+	const { email, password }: AuthCredentials = req.body,
+	      user: User                           = UserFactory.from( { email, password } )
 	
 	try {
-		user.save()
+		user.register()
 		
 		return res
 			.status( 201 )
 			.json( { email } )
 	} catch ( error ) {
 		return res
-			.status( 500 )
-			.json( { error } )
+			.status( 422 )
+			.json( { error: `Email already taken` } )
 	}
 }
 

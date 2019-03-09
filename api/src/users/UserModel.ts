@@ -24,6 +24,7 @@ export interface User
 	authenticate: ( password: string ) => Pass
 	registered: () => boolean
 	save: () => void
+	register: () => void
 }
 
 export class UserFactory
@@ -58,6 +59,12 @@ class RegisteredUser implements User
 	registered()
 	{
 		return true
+	}
+	
+	
+	register()
+	{
+		throw new Error( `User already registered` )
 	}
 	
 	
@@ -96,6 +103,12 @@ class UnregisteredUser implements User
 	registered()
 	{
 		return false
+	}
+	
+	
+	register()
+	{
+		this.save()
 	}
 	
 	
