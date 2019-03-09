@@ -196,7 +196,7 @@ cardinal@^2.1.1:
     ansicolors "~0.3.2"
     redeyed "~2.1.0"
 
-chalk@^2.4.1:
+chalk@^2.4.1, chalk@^2.4.2:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.4.2.tgz#cd42541677a54333cf541a49108c1432b44c9424"
   integrity sha512-Mti+f9lpJNcwF4tWV8/OrTTtF1gZi+f8FqlyAdouralcFWFQWF2+NgCHShjkCb+IFBLq9buZwE1xckQU4peSuQ==
@@ -547,6 +547,11 @@ isexe@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-2.0.0.tgz#e8fbf374dc556ff8947a10dcb0572d633f2cfa10"
   integrity sha1-6PvzdNxVb/iUehDcsFctYz8s+hA=
+
+json-stringify-pretty-compact@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/json-stringify-pretty-compact/-/json-stringify-pretty-compact-2.0.0.tgz#e77c419f52ff00c45a31f07f4c820c2433143885"
+  integrity sha512-WRitRfs6BGq4q8gTgOy4ek7iPFXjbra0H3PmDLKm2xnZ+Gh1HUhiKGgCZkSPNULlP7mvfu6FV/mOLhCarspADQ==
 
 load-json-file@^1.0.0:
   version "1.1.0"
@@ -952,6 +957,14 @@ redeyed@~2.1.0:
   integrity sha1-iYS1gV2ZyyIEacme7v/jiRPmzAs=
   dependencies:
     esprima "~4.0.0"
+
+redhanded@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/redhanded/-/redhanded-1.0.0.tgz#766fc505f1fdf04ddc3c19e7dbf0c2d061a8e4d8"
+  integrity sha512-ad9G3uJ+U4vLAOCsx1ZRMzQHTIf0q83IMJ/8z8jLTX7QwrKO/mHifXr1USp/BS8qNvb8Kn8Fam28rGZ8AFsMDg==
+  dependencies:
+    chalk "^2.4.2"
+    json-stringify-pretty-compact "^2.0.0"
 
 repeating@^2.0.0:
   version "2.0.1"

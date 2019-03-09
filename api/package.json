@@ -23,6 +23,7 @@
         "dotenv": "^6.2.0",
         "express": "^4.16.4",
         "lowdb": "^1.0.0",
+        "redhanded": "^1.0.0",
         "ts-node-dev": "^1.0.0-pre.32"
     }
 }

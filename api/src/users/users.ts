@@ -1,6 +1,7 @@
 import { NextFunction, Request, RequestHandler, Response, Router } from "express"
 import { db } from "./database"
 import { genSalt, hash } from "bcryptjs"
+import { uncover } from "redhanded"
 
 
 
@@ -38,7 +39,7 @@ const createUserController: RequestHandler = ( req: Request, res: Response, next
 			users
 				.push( { email, password: hashedPassword } )
 				.write() )
-		.then( debugPromise( "AfterUserSaved" ) )
+		.then( uncover( "AfterUserSaved" ) )
 		.then( ( users: SignupCredentials[] ) =>
 			res
 				.status( 201 )
@@ -62,18 +63,6 @@ const createUserController: RequestHandler = ( req: Request, res: Response, next
 		return !!users
 			.find( { email } )
 			.value()
-	}
-}
-
-
-export function debugPromise<T>( name: string ): ( res: T ) => Promise<T>
-{
-	return ( res: T ) => {
-		
-		console.log( `👋 [DEBUG] ${name}` )
-		console.log( res )
-		
-		return Promise.resolve( res )
 	}
 }
 
