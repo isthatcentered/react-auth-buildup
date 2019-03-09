@@ -20,6 +20,8 @@ const createUserController: RequestHandler = ( req: Request, res: Response, next
 			} )
 			.end()
 	
+	
+	// @otdo: move to User: User.from(credentials).save()
 	return hashPassword( password )
 		.then( hashedPassword =>
 			users
