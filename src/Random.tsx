@@ -1,4 +1,5 @@
 import React, { ButtonHTMLAttributes } from "react"
+import { ErrorProps } from "./LoginPage"
 
 
 
@@ -20,5 +21,20 @@ export function Button( { style = {}, className = "", children, ...props }: Butt
 		>
 			{children}
 		</button>
+	)
+}
+
+
+export function ErrorAlert( { style = {}, className = "", children, ...props }: ErrorProps )
+{
+	
+	return (
+		<div
+			{...props}
+			style={{ ...style }}
+			className={`${className} Error p-4  bg-red-lightest`}
+		>
+			💩 {children}
+		</div>
 	)
 }

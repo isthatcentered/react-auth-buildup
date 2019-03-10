@@ -1,5 +1,5 @@
 import React, { HTMLAttributes, useContext } from "react"
-import { Link, navigate } from "@reach/router"
+import { Link } from "@reach/router"
 import { AuthContext } from "./AuthContext"
 
 
@@ -14,15 +14,6 @@ export function Header( { style = {}, className = "", children, ...props }: Head
 {
 	const context = useContext( AuthContext )
 	
-	
-	function handleLogout()
-	{
-		context.logout()
-		
-		navigate( "/login" )
-	}
-	
-	
 	return (
 		<div
 			{...props}
@@ -33,14 +24,12 @@ export function Header( { style = {}, className = "", children, ...props }: Head
 				{!context.isAuthenticated ?
 				 <Link to="/login">Log in</Link> :
 				
-				 <button
-					 onClick={handleLogout}
+				 <Link
+					 to="/logout"
 					 className="text-white underline"
 				 >
 					 Logout
-				 </button>
-				}
-			
+				 </Link>}
 			</div>
 		</div>
 	)

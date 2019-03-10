@@ -1,8 +1,8 @@
-import React, { Component } from "react";
+import React, { Component, HTMLAttributes, useContext, useEffect } from "react";
 import "./App.css";
 import { Header } from "./Header"
-import { Router } from "@reach/router"
-import { AuthProvider } from "./AuthContext"
+import { RouteComponentProps, Router } from "@reach/router"
+import { AuthContext, AuthProvider } from "./AuthContext"
 import { LoginPage } from "./LoginPage"
 import { HomePage } from "./HomePage"
 
@@ -27,6 +27,12 @@ class App extends Component
 							<LoginPage
 								path="/login"
 							/>
+							
+							<LogoutPage
+								path="/logout"
+							/>
+							
+							<NotFoundPage default/>
 						</Router>
 					</main>
 				</div>
@@ -35,6 +41,61 @@ class App extends Component
 		
 	}
 }
+
+
+export interface LogoutPageProps extends HTMLAttributes<HTMLDivElement>, RouteComponentProps
+{
+
+}
+
+
+export function LogoutPage( { navigate, location, style = {}, className = "", children, ...props }: LogoutPageProps )
+{
+	// call destroy session
+	
+	// navigate to home
+	const authProvider = useContext( AuthContext )
+	
+	useEffect( () => {
+		authProvider.logout()
+			.then( () => {
+				navigate!( "/login" )
+			} )
+	} )
+	
+	return (
+		<div
+			{...props}
+			style={{ ...style }}
+			className={`${className} LogoutPage`}
+		>
+			Logging out... 👨‍🚀
+		</div>
+	)
+}
+
+
+export interface NotFoundPageProps extends HTMLAttributes<HTMLDivElement>, RouteComponentProps
+{
+
+}
+
+
+export function NotFoundPage( { navigate, location, style = {}, className = "", children, ...props }: NotFoundPageProps )
+{
+	
+	return (
+		<div
+			{...props}
+			style={{ ...style }}
+			className={`${className} NotFoundPage`}
+		>
+			<h1 style={{ fontSize: "120px" }}>🤷‍♂️</h1>
+			(page not found)
+		</div>
+	)
+}
+
 
 export default App;
 

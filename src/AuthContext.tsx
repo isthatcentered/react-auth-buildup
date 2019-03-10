@@ -15,7 +15,7 @@ interface AuthorizationProvider
 {
 	readonly isAuthenticated: boolean
 	
-	logout(): void
+	logout(): Promise<void>
 	
 	authenticate( credentials: Credentials ): Promise<boolean>
 }
@@ -24,7 +24,7 @@ interface AuthorizationProvider
 export const AuthContext: Context<AuthorizationProvider> = createContext<AuthorizationProvider>( {
 	isAuthenticated: false,
 	authenticate:    () => Promise.resolve( false ),
-	logout:          () => undefined,
+	logout:          () => Promise.reject(),
 } )
 
 export interface CustomAuthContextProviderProps
@@ -46,11 +46,17 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 	
 	logout()
 	{
-		this._setIsAuthenticated( false )
+		return Axios.delete( `/api/session`, { withCredentials: true } )
+			.then( () =>
+				this._setIsAuthenticated( false ) )
+			.catch( ( { response: { data } } ) => {
+				throw new Error( data.message )
+			} )
+			.finally( () => this._setIsAuthenticated( false ) )
 	}
 	
 	
-	authenticate( credentials: Credentials ): Promise<boolean>
+	login( credentials: Credentials ): Promise<boolean>
 	{
 		return Axios.post( `/api/session`, {
 				...credentials,
@@ -93,7 +99,7 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 				value={{
 					...this.state,
 					logout:       this.logout.bind( this ),
-					authenticate: this.authenticate.bind( this ),
+					authenticate: this.login.bind( this ),
 				}}
 			>
 				{this.props.children}

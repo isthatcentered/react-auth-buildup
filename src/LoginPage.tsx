@@ -2,6 +2,7 @@ import React, { HTMLAttributes, useContext, useEffect, useState } from "react"
 import { AuthContext, Credentials } from "./AuthContext"
 import { LoginForm } from "./LoginForm"
 import { RouteComponentProps } from "@reach/router"
+import { ErrorAlert } from "./Random"
 
 
 
@@ -36,10 +37,7 @@ export function LoginPage( { style = {}, className = "", children, navigate, loc
 			style={{ ...style }}
 			className={`${className} LoginPage`}
 		>
-			{error && (
-				<div className="p-4 border border-red bg-red-lightest text-red font-bold mb-4">
-					😱 {error}
-				</div>)}
+			{error && <ErrorAlert>{error}</ErrorAlert>}
 			
 			<LoginForm
 				onLogin={handleLogin}
@@ -47,3 +45,11 @@ export function LoginPage( { style = {}, className = "", children, navigate, loc
 		</div>
 	)
 }
+
+
+export interface ErrorProps extends HTMLAttributes<HTMLDivElement>
+{
+
+}
+
+
