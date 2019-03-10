@@ -36,7 +36,7 @@ app.listen( PORT, function () {
 
 
 app.use( "/api/users", usersRouter )
-app.use( "/api/authenticate", authRouter )
+app.use( "/api/session", authRouter )
 
 // Protected routes
 app.use( ensureAuthorizedMiddleware )

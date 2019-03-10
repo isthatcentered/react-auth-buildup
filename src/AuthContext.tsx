@@ -52,7 +52,7 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 	
 	authenticate( credentials: Credentials ): Promise<boolean>
 	{
-		return Axios.post( `/api/authenticate`, {
+		return Axios.post( `/api/session`, {
 				...credentials,
 			}, { withCredentials: true } )
 			.then( res => {

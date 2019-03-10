@@ -6,7 +6,7 @@ import { uncover } from "redhanded"
 
 
 
-const authenticateUserController: RequestHandler = ( req: Request, res: Response ) => {
+const createSession: RequestHandler = ( req: Request, res: Response ) => {
 	
 	const { email, password }: AuthCredentials = req.body,
 	      user: User                           = UserFactory.from( { email, password } )
@@ -52,7 +52,7 @@ const clearSessionController: RequestHandler = ( req, res ) => {
 export const authRouter = Router()
 authRouter
 	.route( "/" )
-	.post( requireFieldsGuard( "email", "password" ), authenticateUserController )
+	.post( requireFieldsGuard( "email", "password" ), createSession )
 	.delete( clearSessionController )
 
 
