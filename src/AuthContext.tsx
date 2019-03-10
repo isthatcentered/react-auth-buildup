@@ -1,6 +1,6 @@
 import * as React from "react"
 import { Component, Context, createContext } from "react"
-import Axios from "axios"
+import { API } from "./api"
 
 
 
@@ -46,7 +46,7 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 	
 	logout()
 	{
-		return Axios.delete( `/api/session`, { withCredentials: true } )
+		return API.delete( `/session` )
 			.then( () =>
 				this._setIsAuthenticated( false ) )
 			.catch( ( { response: { data } } ) => {
@@ -58,9 +58,9 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 	
 	login( credentials: Credentials ): Promise<boolean>
 	{
-		return Axios.post( `/api/session`, {
+		return API.post( `/session`, {
 				...credentials,
-			}, { withCredentials: true } )
+			} )
 			.then( res => {
 				this._setIsAuthenticated( true )
 				

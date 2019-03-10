@@ -1,7 +1,7 @@
 import React, { HTMLAttributes, useEffect, useState } from "react"
 import { RouteComponentProps } from "@reach/router"
-import Axios from "axios"
 import { ErrorAlert } from "./Random"
+import { API } from "./api"
 
 
 
@@ -25,7 +25,7 @@ export function HomePage( { style = {}, className = "", children, navigate, loca
 	      [ error, setError ] = useState( "" )
 	
 	useEffect( () => {
-		Axios.get( `/api/quotes`, { withCredentials: true } )
+		API.get( `/quotes` )
 			.then( ( { data } ) => setQuote( data ) )
 			.catch( ( { response: { data } } ) => {
 				setError( data.message )
