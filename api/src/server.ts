@@ -4,6 +4,8 @@ import { usersRouter } from "./Routes/usersRoutes"
 import { authRouter } from "./Routes/authRoutes"
 import session from "express-session"
 import env from "dotenv"
+import { quotesRouter } from "./Routes/quotesRoute"
+import { ensureAuthorizedMiddleware } from "./middlewares"
 // https://github.com/BrianDGLS/express-ts
 
 env.config()
@@ -35,3 +37,8 @@ app.listen( PORT, function () {
 
 app.use( "/api/users", usersRouter )
 app.use( "/api/authenticate", authRouter )
+
+// Protected routes
+app.use( ensureAuthorizedMiddleware )
+app.use( "/api/quotes", ensureAuthorizedMiddleware, quotesRouter )
+

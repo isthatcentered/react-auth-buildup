@@ -17,7 +17,7 @@ const authenticateUserController: RequestHandler = ( req: Request, res: Response
 		const pass = user.authenticate( password )
 		
 		if ( req.session ) {
-			req.session.user = req.session.user = {
+			req.session.user = {
 				email: email,
 			};
 			
@@ -35,10 +35,24 @@ const authenticateUserController: RequestHandler = ( req: Request, res: Response
 }
 
 
-export const authRouter = Router()
+const clearSessionController: RequestHandler = ( req, res ) => {
+	if ( !req.session )
+		return res.status( 200 )
+	
+	req.session.destroy( err => {
+		if ( err ) {
+			uncover( "Logout error" )( err )
+			return res.status( 500 ).json( { message: "Huh, something went wrong 🤷‍♂️" } )
+		}
+		
+		return res.status( 200 ).end()
+	} )
+}
 
+export const authRouter = Router()
 authRouter
 	.route( "/" )
 	.post( requireFieldsGuard( "email", "password" ), authenticateUserController )
+	.delete( clearSessionController )
 
 

@@ -25,3 +25,13 @@ export function requireFieldsGuard( ...fields: string[] ): RequestHandler
 		next()
 	}
 }
+
+
+export const ensureAuthorizedMiddleware: RequestHandler = ( req, res, next ) => {
+	
+	if ( req.session && req.session.user && req.session.isAuthenticated ) {
+		next();
+	} else {
+		return res.status( 403 ).json( { message: "Unauthorized" } );
+	}
+}
