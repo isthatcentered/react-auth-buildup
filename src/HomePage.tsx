@@ -1,8 +1,9 @@
-import React, { HTMLAttributes, useEffect, useState } from "react"
+import React, { HTMLAttributes, useContext, useEffect, useState } from "react"
 import { RouteComponentProps } from "@reach/router"
 import { ErrorAlert } from "./Random"
 import { API } from "./api"
 import { ApiError } from "../api/src/contracts"
+import { AuthContext } from "./AuthContext"
 
 
 
@@ -25,8 +26,14 @@ export function HomePage( { style = {}, className = "", children, navigate, loca
 	const [ quote, setQuote ] = useState<quote | undefined>( undefined ),
 	      [ error, setError ] = useState( "" )
 	
+	const authProvider = useContext( AuthContext )
+	
 	useEffect( () => {
-		API.get( `/quotes` )
+		API.get( `/quotes`, {
+				headers: {
+					...authProvider.getAuthHeader(),
+				},
+			} )
 			.then( ( { data } ) => setQuote( data ) )
 			.catch( ( { response: { data } } ) => {
 				setError( (data as ApiError).message )

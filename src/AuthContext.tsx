@@ -19,6 +19,8 @@ interface AuthorizationProvider
 	logout(): Promise<void>
 	
 	authenticate( credentials: Credentials ): Promise<boolean>
+	
+	getAuthHeader(): { authorization: string } | {}
 }
 
 
@@ -26,6 +28,7 @@ export const AuthContext: Context<AuthorizationProvider> = createContext<Authori
 	isAuthenticated: false,
 	authenticate:    () => Promise.resolve( false ),
 	logout:          () => Promise.reject(),
+	getAuthHeader:   () => ({}),
 } )
 
 export interface CustomAuthContextProviderProps
@@ -75,6 +78,14 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 	}
 	
 	
+	getAuthHeader()
+	{
+		return this._hasToken() ?
+		       { authorization: `Bearer ${this._getToken()}` } :
+		       {}
+	}
+	
+	
 	private _isAuthenticated(): boolean
 	{
 		return !!this._getToken()
@@ -121,6 +132,7 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 					...this.state,
 					logout:       this.logout.bind( this ),
 					authenticate: this.login.bind( this ),
+					getAuthHeader:     this.getAuthHeader.bind( this ),
 				}}
 			>
 				{this.props.children}
