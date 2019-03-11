@@ -5,15 +5,16 @@ import { authRouter } from "./Routes/sessions"
 import session from "express-session"
 import env from "dotenv"
 import { quotesRouter } from "./Routes/quotes"
-import { ensureAuthorizedMiddleware } from "./middlewares"
 import { uncover } from "redhanded"
-import { ApiError, SomethingWentWrongError } from "./contracts"
+import { ApiError } from "./contracts"
+import expressJwt from "express-jwt"
 // https://github.com/BrianDGLS/express-ts
 
 env.config()
 
 const PORT = process.env.port || 4001
 const app: express.Application = express()
+
 
 app.use( bodyParser.urlencoded( { extended: false } ) );
 app.use( bodyParser.json() );
@@ -41,8 +42,8 @@ app.use( "/api/users", usersRouter )
 app.use( "/api/session", authRouter )
 
 // Protected routes
-app.use( ensureAuthorizedMiddleware )
-app.use( "/api/quotes", ensureAuthorizedMiddleware, quotesRouter )
+app.use( expressJwt( { secret: process.env.JWT_SECRET! } ) )
+app.use( "/api/quotes", quotesRouter )
 
 
 // custom error handler
@@ -52,7 +53,20 @@ const logErrorHandler: ErrorRequestHandler    = ( err: Error | ApiError, req, re
 	      next( err )
       },
       globalErrorHandler: ErrorRequestHandler = ( err: Error | ApiError, req, res, next ) => {
-	      res.status( (err as any).status || 500 ).send( new SomethingWentWrongError() )
+	
+	      if ( !isCustomError() )
+		      return next( err )
+	
+	
+	      return res.status( (err as any).status )
+		      .send( err )
+	
+	
+	
+	      function isCustomError(): boolean
+	      {
+		      return !!(err as any).status // @todo: fix with type guard
+	      }
       }
 
 app.use( logErrorHandler, globalErrorHandler )
