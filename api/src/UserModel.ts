@@ -1,8 +1,7 @@
 import { db } from "./database"
 import { compareSync, genSaltSync, hashSync } from "bcryptjs"
-import { UserAlreadyRegisteredError} from "./contracts"
-import { IncorrectCredentialsError} from "./contracts"
-import { UserNotRegisteredError } from "./contracts"
+import { IncorrectCredentialsError, UserAlreadyRegisteredError, UserNotRegisteredError } from "./contracts"
+import jwt from "jsonwebtoken"
 
 
 
@@ -13,12 +12,12 @@ export interface AuthCredentials
 	password: string
 }
 
-interface Pass
+export interface Pass
 {
 	token: string
 }
 
-interface userModel extends AuthCredentials
+export interface userModel extends AuthCredentials
 {
 }
 
@@ -27,24 +26,6 @@ export interface User
 	authenticate: ( password: string ) => Pass
 	save: () => void
 	register: () => void
-}
-
-export class UserFactory
-{
-	static from( credentials: AuthCredentials ): User
-	{
-		const inDbMatch = UserFactory.find( { email: credentials.email } )
-		
-		return !!inDbMatch ?
-		       new RegisteredUser( inDbMatch ) :
-		       new UnregisteredUser( credentials )
-	}
-	
-	
-	private static find( filters: Record<string, any> ): userModel | undefined
-	{
-		return db.get( "users" ).find( filters ).value()
-	}
 }
 
 class RegisteredUser implements User
@@ -78,8 +59,27 @@ class RegisteredUser implements User
 			throw new IncorrectCredentialsError()
 		
 		return {
-			token: Math.random().toString(),
+			token: this.__createPass(),
 		}
+	}
+	
+	
+	private __createPass(): string
+	{
+		const claim  = {
+			      "https://oauthplayground.com/id":    this.__model.email,
+			      "https://oauthplayground.com/email": this.__model.email,
+		      },
+		      config = {
+			      algorithm: "HS256",
+			      expiresIn: "1h",
+		      }
+		
+		return jwt.sign(
+			claim,
+			process.env.JWT_SECRET!,
+			config,
+		)
 	}
 }
 
@@ -124,5 +124,23 @@ class UnregisteredUser implements User
 		const salt = genSaltSync( 12 )
 		
 		return hashSync( password, salt )
+	}
+}
+
+export class UserFactory
+{
+	static from( credentials: AuthCredentials ): User
+	{
+		const inDbMatch = UserFactory.find( { email: credentials.email } )
+		
+		return !!inDbMatch ?
+		       new RegisteredUser( inDbMatch ) :
+		       new UnregisteredUser( credentials )
+	}
+	
+	
+	private static find( filters: Record<string, any> ): userModel | undefined
+	{
+		return db.get( "users" ).find( filters ).value()
 	}
 }

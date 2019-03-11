@@ -13,19 +13,10 @@ const createSession: RequestHandler = ( req: Request, res: Response ) => {
 	
 	const pass = user.authenticate( password )
 	
-	if ( req.session ) {
-		req.session.user = {
-			email: email,
-		};
-		
-		req.session.isAuthenticated = true;
-	}
-	
 	return res
 		.status( 200 )
 		.json( pass )
 }
-
 
 const clearSessionController: RequestHandler = ( req, res ) => {
 	

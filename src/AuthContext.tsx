@@ -41,19 +41,20 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 {
 	
 	state: CustomAuthContextProviderState = {
-		isAuthenticated: this._getIsAuthenticated(),
+		isAuthenticated: this._hasToken(),
 	}
 	
 	
 	logout()
 	{
 		return API.delete( `/session` )
-			.then( () =>
-				this._setIsAuthenticated( false ) )
+			.then( () => undefined ) // Typescript yells without the "then"
 			.catch( ( { response: { data } } ) => {
 				throw new Error( (data as ApiError).message )
 			} )
-			.finally( () => this._setIsAuthenticated( false ) )
+			.finally( () => {
+				this._clearToken()
+			} )
 	}
 	
 	
@@ -62,28 +63,47 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 		return API.post( `/session`, {
 				...credentials,
 			} )
-			.then( res => {
-				this._setIsAuthenticated( true )
-				
-				return this._getIsAuthenticated()
+			.then( ( { data: { token } } ) => {
+				this._setToken( token )
+				console.log( token )
+				return this._isAuthenticated()
 			} )
 			.catch( ( { response: { data } } ) => {
+				this._clearToken()
 				throw new Error( (data as ApiError).message )
 			} )
 	}
 	
 	
-	private _setIsAuthenticated( value: boolean )
+	private _isAuthenticated(): boolean
 	{
-		localStorage.setItem( "isAuthenticated", value.toString() )
-		
-		this.setState( { isAuthenticated: value } )
+		return !!this._getToken()
 	}
 	
 	
-	private _getIsAuthenticated()
+	private _clearToken(): void
 	{
-		return JSON.parse( localStorage.getItem( "isAuthenticated" ) || "false" )
+		this._setToken( "" )
+	}
+	
+	
+	private _hasToken(): boolean
+	{
+		return !!this._getToken()
+	}
+	
+	
+	private _setToken( value: string ): void
+	{
+		localStorage.setItem( "token", value )
+		
+		this.setState( { isAuthenticated: this._isAuthenticated() } )
+	}
+	
+	
+	private _getToken(): string
+	{
+		return localStorage.getItem( "token" ) || ""
 	}
 	
 	
