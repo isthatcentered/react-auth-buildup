@@ -2,6 +2,7 @@ import { Request, RequestHandler, Response, Router } from "express"
 import { AuthCredentials, User, UserFactory } from "../UserModel"
 import { requireFieldsGuard } from "../middlewares"
 import { uncover } from "redhanded"
+import { ErrorResponse } from "../contracts"
 
 
 
@@ -30,7 +31,7 @@ const createSession: RequestHandler = ( req: Request, res: Response ) => {
 	} catch ( { name, message } ) {
 		return res
 			.status( 401 )
-			.json( { message, name } )
+			.json( new ErrorResponse( { message, type: name } ) )
 	}
 }
 
@@ -42,7 +43,7 @@ const clearSessionController: RequestHandler = ( req, res ) => {
 	req.session.destroy( err => {
 		if ( err ) {
 			uncover( "Logout error" )( err )
-			return res.status( 500 ).json( { message: "Huh, something went wrong 🤷‍♂️" } )
+			return res.status( 500 ).json( new ErrorResponse( { message: "Huh, something went wrong 🤷‍♂️", type: "Server error" } ) )
 		}
 		
 		return res.status( 200 ).end()

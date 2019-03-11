@@ -1,6 +1,7 @@
 import * as React from "react"
 import { Component, Context, createContext } from "react"
 import { API } from "./api"
+import { ErrorResponse } from "../api/src/contracts"
 
 
 
@@ -50,7 +51,7 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 			.then( () =>
 				this._setIsAuthenticated( false ) )
 			.catch( ( { response: { data } } ) => {
-				throw new Error( data.message )
+				throw new Error( (data as ErrorResponse).message )
 			} )
 			.finally( () => this._setIsAuthenticated( false ) )
 	}
@@ -67,7 +68,7 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 				return this._getIsAuthenticated()
 			} )
 			.catch( ( { response: { data } } ) => {
-				throw new Error( data.message )
+				throw new Error( (data as ErrorResponse).message )
 			} )
 	}
 	

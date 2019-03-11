@@ -2,6 +2,7 @@ import React, { HTMLAttributes, useEffect, useState } from "react"
 import { RouteComponentProps } from "@reach/router"
 import { ErrorAlert } from "./Random"
 import { API } from "./api"
+import { ErrorResponse } from "../api/src/contracts"
 
 
 
@@ -28,7 +29,7 @@ export function HomePage( { style = {}, className = "", children, navigate, loca
 		API.get( `/quotes` )
 			.then( ( { data } ) => setQuote( data ) )
 			.catch( ( { response: { data } } ) => {
-				setError( data.message )
+				setError( (data as ErrorResponse).message )
 			} )
 		
 	} )
