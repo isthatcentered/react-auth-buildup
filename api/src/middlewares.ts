@@ -1,4 +1,5 @@
 import { RequestHandler } from "express"
+import { MissingRequiredFieldsError } from "./contracts"
 
 
 
@@ -16,11 +17,9 @@ export function requireFieldsGuard( ...fields: string[] ): RequestHandler
 				      [ ...notFounds, field ], [],
 			      )
 		
+		
 		if ( missingFields.length )
-			return res.status( 400 )
-				.json( {
-					message: `Required fields ${missingFields.map( f => `"${f}"` ).join( ", " )} missing 😭`,
-				} )
+			throw new MissingRequiredFieldsError( missingFields )
 		
 		next()
 	}

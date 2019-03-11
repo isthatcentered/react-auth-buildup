@@ -1,7 +1,8 @@
 import { db } from "./database"
 import { compareSync, genSaltSync, hashSync } from "bcryptjs"
-import { UserAlreadyRegisteredError} from "./Errors"
-import { IncorrectCredentialsError, UserNotRegisteredError } from "./Errors"
+import { UserAlreadyRegisteredError} from "./contracts"
+import { IncorrectCredentialsError} from "./contracts"
+import { UserNotRegisteredError } from "./contracts"
 
 
 

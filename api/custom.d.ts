@@ -1,3 +1,8 @@
+import { NextFunction } from "express-serve-static-core"
+
+
+
+
 declare namespace Express
 {
 	interface Request

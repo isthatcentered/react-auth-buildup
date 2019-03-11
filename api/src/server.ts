@@ -1,4 +1,4 @@
-import express from "express"
+import express, { ErrorRequestHandler } from "express"
 import bodyParser from "body-parser"
 import { usersRouter } from "./Routes/usersRoutes"
 import { authRouter } from "./Routes/authRoutes"
@@ -6,6 +6,8 @@ import session from "express-session"
 import env from "dotenv"
 import { quotesRouter } from "./Routes/quotesRoute"
 import { ensureAuthorizedMiddleware } from "./middlewares"
+import { uncover } from "redhanded"
+import { ApiError, SomethingWentWrongError } from "./contracts"
 // https://github.com/BrianDGLS/express-ts
 
 env.config()
@@ -42,3 +44,15 @@ app.use( "/api/session", authRouter )
 app.use( ensureAuthorizedMiddleware )
 app.use( "/api/quotes", ensureAuthorizedMiddleware, quotesRouter )
 
+
+// custom error handler
+const logErrorHandler: ErrorRequestHandler    = ( err: Error | ApiError, req, res, next ) => {
+	      uncover( err.name )( err.message )
+	
+	      next( err )
+      },
+      globalErrorHandler: ErrorRequestHandler = ( err: Error | ApiError, req, res, next ) => {
+	      res.status( (err as any).status || 500 ).send( new SomethingWentWrongError() )
+      }
+
+app.use( logErrorHandler, globalErrorHandler )
