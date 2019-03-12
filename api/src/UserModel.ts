@@ -1,7 +1,7 @@
 import { db } from "./database"
 import { compareSync, genSaltSync, hashSync } from "bcryptjs"
 import { IncorrectCredentialsError, UserAlreadyRegisteredError, UserNotRegisteredError } from "./contracts"
-import jwt from "jsonwebtoken"
+import { Pass } from "./Routes/sessions"
 
 
 
@@ -12,18 +12,14 @@ export interface AuthCredentials
 	password: string
 }
 
-export interface Pass
-{
-	token: string
-}
-
 export interface userModel extends AuthCredentials
 {
 }
 
 export interface User
 {
-	authenticate: ( password: string ) => Pass
+	email: string
+	authenticate: ( password: string ) => void
 	save: () => void
 	register: () => void
 }
@@ -39,6 +35,12 @@ class RegisteredUser implements User
 	}
 	
 	
+	get email()
+	{
+		return this.__model.email
+	}
+	
+	
 	register()
 	{
 		throw new UserAlreadyRegisteredError()
@@ -51,35 +53,12 @@ class RegisteredUser implements User
 	}
 	
 	
-	authenticate( password: string ): Pass
+	authenticate( password: string ): void
 	{
 		const passwordMatching = compareSync( password, this.__model.password )
 		
 		if ( !passwordMatching )
 			throw new IncorrectCredentialsError()
-		
-		return {
-			token: this.__createPass(),
-		}
-	}
-	
-	
-	private __createPass(): string
-	{
-		const claim  = {
-			      "https://oauthplayground.com/id":    this.__model.email,
-			      "https://oauthplayground.com/email": this.__model.email,
-		      },
-		      config = {
-			      algorithm: "HS256",
-			      expiresIn: "1h",
-		      }
-		
-		return jwt.sign(
-			claim,
-			process.env.JWT_SECRET!,
-			config,
-		)
 	}
 }
 
@@ -93,6 +72,12 @@ class UnregisteredUser implements User
 	{
 		this.__email = email
 		this.__password = this.__hashPassword( password )
+	}
+	
+	
+	get email()
+	{
+		return this.__email
 	}
 	
 	
