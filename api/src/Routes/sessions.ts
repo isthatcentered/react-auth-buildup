@@ -3,6 +3,7 @@ import { AuthCredentials, User, UserFactory } from "../UserModel"
 import { requireFieldsGuard } from "../middlewares"
 import { SomethingWentWrongError } from "../contracts"
 import jwt from "jsonwebtoken"
+import jwtDecode from "jwt-decode"
 
 
 
@@ -60,6 +61,10 @@ function createPass( user: User ): Pass
 	)
 	
 	return {
+		userInfo:  {
+			email: user.email,
+		},
+		expiresAt: (jwtDecode( token ) as any).exp,
 		token,
 	}
 }
@@ -67,5 +72,9 @@ function createPass( user: User ): Pass
 
 export interface Pass
 {
+	expiresAt: string
+	userInfo: {
+		email: string
+	}
 	token: string
 }

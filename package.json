@@ -36,6 +36,7 @@
         "@types/express-jwt": "^0.0.41",
         "@types/express-session": "^1.15.12",
         "@types/jsonwebtoken": "^8.3.2",
+        "@types/jwt-decode": "^2.2.1",
         "@types/query-string": "^6.2.0",
         "@types/reach__router": "^1.2.3",
         "axios": "^0.18.0",
