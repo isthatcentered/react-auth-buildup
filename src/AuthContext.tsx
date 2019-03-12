@@ -50,14 +50,9 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 	
 	logout()
 	{
-		return API.delete( `/session` )
-			.then( () => undefined ) // Typescript yells without the "then"
-			.catch( ( { response: { data } } ) => {
-				throw new Error( (data as ApiError).message )
-			} )
-			.finally( () => {
-				this._clearToken()
-			} )
+		this._clearToken() // Not much we can do to invalidate token on backend side
+		
+		return Promise.resolve()
 	}
 	
 	
@@ -130,9 +125,9 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 			<AuthContext.Provider
 				value={{
 					...this.state,
-					logout:       this.logout.bind( this ),
-					authenticate: this.login.bind( this ),
-					getAuthHeader:     this.getAuthHeader.bind( this ),
+					logout:        this.logout.bind( this ),
+					authenticate:  this.login.bind( this ),
+					getAuthHeader: this.getAuthHeader.bind( this ),
 				}}
 			>
 				{this.props.children}
