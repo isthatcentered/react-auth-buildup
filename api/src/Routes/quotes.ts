@@ -4,10 +4,12 @@ import { NextFunction, Request, RequestHandler, Response, Router } from "express
 
 
 const getQuoteController: RequestHandler = ( req: Request, res: Response, next: NextFunction ) => {
-	
-	return res
+
+	setTimeout(_ =>
+	res
 		.status( 201 )
 		.json( { quote: `Indeed`, author: `Teal'c` } )
+		, 2000  )
 }
 
 

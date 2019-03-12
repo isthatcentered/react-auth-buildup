@@ -4,6 +4,7 @@ import { ErrorAlert } from "./Random"
 import { API } from "./api"
 import { ApiError } from "../api/src/contracts"
 import { AuthContext } from "./AuthContext"
+import { useProtectedRoute } from "./App"
 
 
 
@@ -28,6 +29,8 @@ export function HomePage( { style = {}, className = "", children, navigate, loca
 	
 	const authProvider = useContext( AuthContext )
 	
+	useProtectedRoute()
+	
 	useEffect( () => {
 		API.get( `/quotes`, {
 				headers: {
@@ -48,6 +51,7 @@ export function HomePage( { style = {}, className = "", children, navigate, loca
 			style={{ ...style }}
 			className={`${className} HomePage`}
 		>
+			Hello 🥳
 			{error && <ErrorAlert>{error}</ErrorAlert>}
 			{quote && (
 				<blockquote className="py-2 px-4 border-l-2 ">

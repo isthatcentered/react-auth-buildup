@@ -20,6 +20,7 @@ export function Header( { style = {}, className = "", children, ...props }: Head
 			style={{ ...style }}
 			className={`${className} Header flex p-4 bg-purple`}
 		>
+			<Link to="/">Home</Link>
 			<div className="ml-auto">
 				{!context.isAuthenticated ?
 				 <Link to="/login">Log in</Link> :

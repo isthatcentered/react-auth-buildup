@@ -13,7 +13,7 @@ export interface Credentials
 	password: string
 }
 
-interface AuthorizationProvider
+export interface AuthorizationProvider
 {
 	readonly isAuthenticated: boolean
 	
