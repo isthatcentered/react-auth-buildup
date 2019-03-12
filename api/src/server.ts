@@ -8,6 +8,9 @@ import { quotesRouter } from "./Routes/quotes"
 import { uncover } from "redhanded"
 import { ApiError } from "./contracts"
 import expressJwt from "express-jwt"
+import { makeCsrfToken } from "./middlewares"
+import csrf from "csurf"
+import cookieParser from "cookie-parser"
 // https://github.com/BrianDGLS/express-ts
 
 env.config()
@@ -15,6 +18,9 @@ env.config()
 const PORT = process.env.port || 4001
 const app: express.Application = express()
 
+app.use(cookieParser())
+app.use( csrf( { cookie: true } ) )
+app.use( makeCsrfToken )
 
 app.use( bodyParser.urlencoded( { extended: false } ) );
 app.use( bodyParser.json() );

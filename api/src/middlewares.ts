@@ -26,11 +26,7 @@ export function requireFieldsGuard( ...fields: string[] ): RequestHandler
 }
 
 
-export const ensureAuthorizedMiddleware: RequestHandler = ( req, res, next ) => {
-	
-	if ( req.session && req.session.user && req.session.isAuthenticated ) {
-		next();
-	} else {
-		return res.status( 403 ).json( { message: "Unauthorized" } );
-	}
+export const makeCsrfToken: RequestHandler = ( req, res, next ) => {
+	res.cookie( "csrf-token", req.csrfToken() )
+	next()
 }
