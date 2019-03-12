@@ -2,6 +2,7 @@ import * as React from "react"
 import { Component, Context, createContext } from "react"
 import { API } from "./api"
 import { ApiError } from "../api/src/contracts"
+import { Pass } from "../api/src/Routes/sessions"
 
 
 
@@ -44,13 +45,13 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 {
 	
 	state: CustomAuthContextProviderState = {
-		isAuthenticated: this._hasToken(),
+		isAuthenticated: this._isAuthenticated(),
 	}
 	
 	
 	logout()
 	{
-		this._clearToken() // Not much we can do to invalidate token on backend side
+		this._clearPass()// Not much we can do to invalidate token on backend side
 		
 		return Promise.resolve()
 	}
@@ -58,60 +59,76 @@ export class CustomAuthContextProvider extends Component<CustomAuthContextProvid
 	
 	login( credentials: Credentials ): Promise<boolean>
 	{
-		return API.post( `/session`, {
+		return API.post<Pass>( `/session`, {
 				...credentials,
 			} )
-			.then( ( { data: { token } } ) => {
-				this._setToken( token )
-				console.log( token )
+			.then( ( { data } ) => {
+				
+				this._setPass( data )
+				
+				console.log( data )
+				
 				return this._isAuthenticated()
 			} )
 			.catch( ( { response: { data } } ) => {
-				this._clearToken()
+				this._clearPass()
+				
 				throw new Error( (data as ApiError).message )
 			} )
 	}
 	
 	
-	getAuthHeader()
-	{
-		return this._hasToken() ?
-		       { authorization: `Bearer ${this._getToken()}` } :
-		       {}
-	}
-	
-	
 	private _isAuthenticated(): boolean
 	{
-		return !!this._getToken()
-	}
-	
-	
-	private _clearToken(): void
-	{
-		this._setToken( "" )
-	}
-	
-	
-	private _hasToken(): boolean
-	{
-		return !!this._getToken()
-	}
-	
-	
-	private _setToken( value: string ): void
-	{
-		localStorage.setItem( "token", value )
+		const { token, expiresAt } = this._getPass(),
+		      hasToken             = !!token,
+		      tokenExpired         = new Date().getTime() >= expiresAt
 		
-		this.setState( { isAuthenticated: this._isAuthenticated() } )
+		return hasToken && !tokenExpired
 	}
 	
 	
-	private _getToken(): string
+	private _clearPass(): void
 	{
-		return localStorage.getItem( "token" ) || ""
+		localStorage.setItem( "pass", "null" )
+		
+		this.setState( state => ({
+			isAuthenticated: false,
+		}) )
 	}
 	
+	
+	private _setPass( pass: Pass ): void
+	{
+		localStorage.setItem( "pass", JSON.stringify( {
+			...pass,
+			expiresAt: pass.expiresAt * 1000, // Exp value from token is UNIX timestamp––the number of SECONDS since Jan 1, 1970. JS,is UNIX timestamp in MILLISECONDS
+		} ) )
+		
+		this.setState( state => ({
+			isAuthenticated: this._isAuthenticated(),
+		}) )
+	}
+	
+	
+	private _getPass(): Pass
+	{
+		const stored = JSON.parse( localStorage.getItem( "pass" ) || "null" )
+		
+		const visitorPass = { token: "", expiresAt: Date.now(), userInfo: { email: "" } }
+		
+		return stored || visitorPass
+	}
+	
+	
+	getAuthHeader()
+	{
+		const { token } = this._getPass()
+		
+		return this._getPass().token ?
+		       { authorization: `Bearer ${token}` } :
+		       {}
+	}
 	
 	
 	componentDidMount()

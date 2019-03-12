@@ -72,7 +72,7 @@ function createPass( user: User ): Pass
 
 export interface Pass
 {
-	expiresAt: string
+	expiresAt: number
 	userInfo: {
 		email: string
 	}
