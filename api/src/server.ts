@@ -11,6 +11,7 @@ import expressJwt from "express-jwt"
 import { makeCsrfToken } from "./middlewares"
 import csrf from "csurf"
 import cookieParser from "cookie-parser"
+import helmet from "helmet"
 // https://github.com/BrianDGLS/express-ts
 
 env.config()
@@ -18,7 +19,8 @@ env.config()
 const PORT = process.env.port || 4001
 const app: express.Application = express()
 
-app.use(cookieParser())
+app.use( helmet() ) // https://www.npmjs.com/package/helmet
+app.use( cookieParser() )
 app.use( csrf( { cookie: true } ) )
 app.use( makeCsrfToken )
 
