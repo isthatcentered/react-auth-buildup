@@ -2,17 +2,25 @@ import * as React from "react"
 import { FunctionComponent, HTMLAttributes, useLayoutEffect, useState } from "react"
 import { func, object, verify, when } from "testdouble"
 import { NavigateFn, RouteComponentProps } from "@reach/router"
-import { act, render } from "react-testing-library"
+import { render } from "react-testing-library"
 import { and, feature, given, scenario, then } from "jest-case"
 
 
 
 
+type availableAuthenticationMethods = "signup" | "login"
+
 interface AuthenticationPageViewProps extends HTMLAttributes<HTMLDivElement>
 {
+	tab: availableAuthenticationMethods
+	
 	error: Error | undefined;
 	
-	onLogin( credentials: authCredentials ): void;
+	onTabSelect( tab: availableAuthenticationMethods ): any;
+	
+	onLogin( credentials: authCredentials ): any;
+	
+	onSignup( credentials: authCredentials ): any;
 	
 	loading: boolean
 }
@@ -30,6 +38,8 @@ interface AuthProvider
 	login( credentials: authCredentials ): Promise<undefined>;
 	
 	isAuthenticated(): boolean;
+	
+	signup( credentials: authCredentials ): Promise<undefined>
 }
 
 
@@ -42,20 +52,21 @@ export interface AuthenticationPageProps extends HTMLAttributes<HTMLDivElement>,
 export function AuthenticationPage( { authProvider, navigate, location, style = {}, className = "", children, ...props }: AuthenticationPageProps )
 {
 	const [ loading, setLoading ] = useState( false ),
-	      [ error, setError ]     = useState<Error | undefined>( undefined )
+	      [ error, setError ]     = useState<Error | undefined>( undefined ),
+	      [ tab, setTab ]         = useState<availableAuthenticationMethods>( "login" )
 	
 	useLayoutEffect( () => {
-		if ( authProvider.isAuthenticated() ) {
+		if ( authProvider.isAuthenticated() )
 			navigate!( "/" )
-		}
 	} )
 	
 	
-	function handleLogin( credentials: authCredentials )
+	function authenticate( type: "login" | "signup", credentials: authCredentials )
 	{
 		setLoading( true )
+		
 		authProvider
-			.login( credentials )
+			[ type ]( credentials )
 			.then( () => navigate!( "/" ) )
 			.catch( err => {
 				setError( err )
@@ -71,9 +82,12 @@ export function AuthenticationPage( { authProvider, navigate, location, style = 
 			className={`${className} AuthenticationPage`}
 		>
 			<AuthenticationPageView
-				onLogin={handleLogin}
+				onLogin={credentials => authenticate( "login", credentials )}
+				onSignup={credentials => authenticate( "signup", credentials )}
 				loading={loading}
 				error={error}
+				tab={tab}
+				onTabSelect={tab => setTab( tab )}
 			/>
 		</div>
 	)
@@ -114,6 +128,7 @@ feature( `Only logged out users can access the page`, () => {
 	} )
 } )
 
+// @todo: those two featue (signup/login) are exactly the same, merge them
 feature( `A user can log in`, () => {
 	let credentials: authCredentials = fake<authCredentials>( "credentials" )
 	
@@ -126,7 +141,7 @@ feature( `A user can log in`, () => {
 		then( `A loader is displayed`, () => {
 			const { view } = renderAuthPage( authProvider )
 			
-			act( () => view.onLogin( credentials ) )
+			view.onLogin( credentials )
 			
 			expect( view.loading ).toBe( true )
 		} )
@@ -134,7 +149,7 @@ feature( `A user can log in`, () => {
 		and( `User is redirected to home`, async () => {
 			const { view, navigate } = renderAuthPage( authProvider )
 			
-			act( () => view.onLogin( credentials ) )
+			view.onLogin( credentials )
 			
 			await tick()
 			
@@ -153,7 +168,7 @@ feature( `A user can log in`, () => {
 		then( `An error message is passed to the view`, async () => {
 			const { view } = renderAuthPage( authProvider )
 			
-			act( () => view.onLogin( credentials ) )
+			view.onLogin( credentials )
 			
 			await tick()
 			
@@ -163,7 +178,7 @@ feature( `A user can log in`, () => {
 		and( `Loader is disabled`, async () => {
 			const { view } = renderAuthPage( authProvider )
 			
-			act( () => view.onLogin( credentials ) )
+			view.onLogin( credentials )
 			
 			await tick()
 			
@@ -172,6 +187,92 @@ feature( `A user can log in`, () => {
 	} )
 } )
 
+// @todo: those two featue (signup/login) are exactly the same, merge them
+feature( `A user can sign-in`, () => {
+	let credentials: authCredentials = fake<authCredentials>( "credentials" )
+	
+	scenario( `Success`, () => {
+		given( () => {
+			when( authProvider.isAuthenticated() ).thenReturn( false )
+			when( authProvider.signup( credentials ) ).thenResolve()
+		} )
+		
+		then( `A loader is displayed`, async () => {
+			const { view } = renderAuthPage( authProvider )
+			
+			view.onSignup( credentials )
+			
+			await tick()
+			
+			expect( view.loading ).toBe( true )
+		} )
+		
+		then( `User is redirected to home`, async () => {
+			const { view, navigate } = renderAuthPage( authProvider )
+			
+			view.onSignup( credentials )
+			
+			await tick()
+			
+			verify( navigate( "/" ) )
+		} )
+		
+		then( `User is redirected to home after message + timeout`, () => {
+			fail()
+			// @todo: display a "success message", redirecting in x
+		} )
+	} )
+	
+	scenario( `Sign-up error`, () => {
+		const error = fake<Error>( "error" )
+		
+		given( () => {
+			when( authProvider.isAuthenticated() ).thenReturn( false )
+			when( authProvider.signup( credentials ) ).thenReject( error )
+		} )
+		
+		then( `An error message is passed to the view`, async () => {
+			const { view } = renderAuthPage( authProvider )
+			
+			view.onSignup( credentials )
+			
+			await tick()
+			
+			expect( view.error ).toBe( error )
+		} )
+		
+		and( `Loader is disabled`, async () => {
+			const { view } = renderAuthPage( authProvider )
+			
+			view.onSignup( credentials )
+			
+			await tick()
+			
+			expect( view.loading ).toBe( false )
+		} )
+	} )
+} )
+
+feature( `Switching between login and sign-up tab`, () => {
+	test( `Login tab is active by default`, () => {
+		const { view } = renderAuthPage( authProvider )
+		
+		expect( view.tab ).toBe( "login" )
+	} )
+	
+	test( `View gets the new activated tab`, () => {
+		const { view } = renderAuthPage( authProvider )
+		
+		view.onTabSelect( "signup" )
+		expect( view.tab ).toBe( "signup" )
+		
+		view.onTabSelect( "login" )
+		expect( view.tab ).toBe( "login" )
+		
+		view.onTabSelect( "login" )
+		expect( view.tab ).toBe( "login" )
+	} )
+} )
 
 
 function renderAuthPage( authProvider: AuthProvider )
