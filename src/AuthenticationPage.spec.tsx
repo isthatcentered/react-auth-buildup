@@ -10,6 +10,8 @@ import { and, feature, given, scenario, then } from "jest-case"
 
 interface AuthenticationPageViewProps extends HTMLAttributes<HTMLDivElement>
 {
+	error: Error | undefined;
+	
 	onLogin( credentials: authCredentials ): void;
 	
 	loading: boolean
@@ -39,11 +41,13 @@ export interface AuthenticationPageProps extends HTMLAttributes<HTMLDivElement>,
 
 export function AuthenticationPage( { authProvider, navigate, location, style = {}, className = "", children, ...props }: AuthenticationPageProps )
 {
-	const [ loading, setLoading ] = useState( false )
+	const [ loading, setLoading ] = useState( false ),
+	      [ error, setError ]     = useState<Error | undefined>( undefined )
 	
 	useLayoutEffect( () => {
-		if ( authProvider.isAuthenticated() )
+		if ( authProvider.isAuthenticated() ) {
 			navigate!( "/" )
+		}
 	} )
 	
 	
@@ -53,6 +57,10 @@ export function AuthenticationPage( { authProvider, navigate, location, style = 
 		authProvider
 			.login( credentials )
 			.then( () => navigate!( "/" ) )
+			.catch( err => {
+				setError( err )
+				setLoading( false )
+			} )
 	}
 	
 	
@@ -65,41 +73,41 @@ export function AuthenticationPage( { authProvider, navigate, location, style = 
 			<AuthenticationPageView
 				onLogin={handleLogin}
 				loading={loading}
+				error={error}
 			/>
 		</div>
 	)
 }
 
 
-beforeEach( () => (AuthenticationPageView as jest.Mock).mockClear() )
+
+let authProvider: AuthProvider
+
+beforeEach( () => {
+	(AuthenticationPageView as jest.Mock).mockClear();
+	authProvider = object<AuthProvider>()
+} )
 
 feature( `Only logged out users can access the page`, () => {
-	let navigate: NavigateFn, authProvider: AuthProvider
-	
-	given( () => {
-		navigate = func<NavigateFn>()
+	beforeEach( () => {
 		authProvider = object<AuthProvider>()
 	} )
 	
 	scenario( `Already logged in`, () => {
+		given( () => when( authProvider.isAuthenticated() ).thenReturn( true ) )
+		
 		then( `User is redirected to home`, () => {
-			when( authProvider.isAuthenticated() ).thenReturn( true )
-			
-			render( <AuthenticationPage
-				authProvider={authProvider}
-				navigate={navigate}/> )
+			const { navigate } = renderAuthPage( authProvider )
 			
 			verify( navigate( "/" ) )
 		} )
 	} )
 	
 	scenario( `Not logged in`, () => {
+		given( () => when( authProvider.isAuthenticated() ).thenReturn( false ) )
+		
 		then( `User is not redirected to home`, () => {
-			when( authProvider.isAuthenticated() ).thenReturn( false )
-			
-			render( <AuthenticationPage
-				authProvider={authProvider}
-				navigate={navigate}/> )
+			const { navigate } = renderAuthPage( authProvider )
 			
 			verify( navigate( "/" ), { times: 0 } )
 		} )
@@ -107,45 +115,26 @@ feature( `Only logged out users can access the page`, () => {
 } )
 
 feature( `A user can log in`, () => {
-	let authProvider: AuthProvider, credentials: authCredentials
-	
-	given( () => {
-		authProvider = object<AuthProvider>()
-		credentials = fake<authCredentials>( "credentials" )
-	} )
-	
-	given( () => when( authProvider.isAuthenticated() ).thenReturn( false ) )
-	
-	given( () => when( authProvider.login( credentials ) ).thenResolve() )
+	let credentials: authCredentials = fake<authCredentials>( "credentials" )
 	
 	scenario( `Success`, () => {
+		given( () => {
+			when( authProvider.isAuthenticated() ).thenReturn( false )
+			when( authProvider.login( credentials ) ).thenResolve()
+		} )
+		
 		then( `A loader is displayed`, () => {
-			render( <AuthenticationPage
-				authProvider={authProvider}
-				navigate={jest.fn()}
-			/> )
+			const { view } = renderAuthPage( authProvider )
 			
-			const props: AuthenticationPageViewProps = [ ...(AuthenticationPageView as jest.Mock).mock.calls ].last()[ 0 ]
+			act( () => view.onLogin( credentials ) )
 			
-			act( () => props.onLogin( credentials ) )
-			
-			expect( AuthenticationPageView ).lastCalledWith( expect.objectContaining( { loading: true } ), expect.anything() )
+			expect( view.loading ).toBe( true )
 		} )
 		
 		and( `User is redirected to home`, async () => {
-			const navigate = func<NavigateFn>()
+			const { view, navigate } = renderAuthPage( authProvider )
 			
-			when( authProvider.login( credentials ) ).thenResolve()
-			
-			render( <AuthenticationPage
-				authProvider={authProvider}
-				navigate={navigate}
-			/> )
-			
-			
-			const props: AuthenticationPageViewProps = [ ...(AuthenticationPageView as jest.Mock).mock.calls ].last()[ 0 ]
-			
-			act( () => props.onLogin( credentials ) )
+			act( () => view.onLogin( credentials ) )
 			
 			await Promise.resolve()
 			
@@ -154,19 +143,59 @@ feature( `A user can log in`, () => {
 	} )
 	
 	scenario( `Error`, () => {
-		then( `An error message is passed to the view`, () => {
+		const error = fake<Error>( "error" )
 		
+		given( () => {
+			when( authProvider.isAuthenticated() ).thenReturn( false )
+			when( authProvider.login( credentials ) ).thenReject( error )
 		} )
 		
-		
-		and( `The error message is emptied on new submit (case for different error returned as success redirects)`, () => {
-		
+		then( `An error message is passed to the view`, async () => {
+			const { view } = renderAuthPage( authProvider )
+			
+			act( () => view.onLogin( credentials ) )
+			
+			await Promise.resolve()
+			
+			expect( view.error ).toBe( error )
 		} )
 		
-		and( `Loader disabled`, () => {
+		and( `Loader is disabled`, async () => {
+			const { view } = renderAuthPage( authProvider )
+			
+			act( () => view.onLogin( credentials ) )
+			
+			await Promise.resolve()
+			
+			expect( view.loading ).toBe( false )
 		} )
 	} )
 } )
+
+
+
+function renderAuthPage( authProvider: AuthProvider )
+{
+	const navigate = func<NavigateFn>(),
+	      wrapper  = render( <AuthenticationPage
+		      authProvider={authProvider}
+		      navigate={navigate}
+	      /> )
+	
+	const view: AuthenticationPageViewProps = new Proxy( {}, {
+		get( target, prop )
+		{
+			return [ ...(AuthenticationPageView as jest.Mock).mock.calls ].last()[ 0 ][ prop ]
+		},
+	} ) as any
+	
+	return {
+		...wrapper,
+		navigate,
+		authProvider,
+		view,
+	}
+}
 
 
 function fake<T>( name: string ): T
