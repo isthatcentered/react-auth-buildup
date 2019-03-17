@@ -3,7 +3,7 @@ import { FunctionComponent, HTMLAttributes, useLayoutEffect, useState } from "re
 import { func, object, verify, when } from "testdouble"
 import { NavigateFn, RouteComponentProps } from "@reach/router"
 import { act, render } from "react-testing-library"
-import { and, feature, given, scenario, then, xand } from "jest-case"
+import { and, feature, given, scenario, then } from "jest-case"
 
 
 
@@ -50,6 +50,9 @@ export function AuthenticationPage( { authProvider, navigate, location, style = 
 	function handleLogin( credentials: authCredentials )
 	{
 		setLoading( true )
+		authProvider
+			.login( credentials )
+			.then( () => navigate!( "/" ) )
 	}
 	
 	
@@ -104,40 +107,47 @@ feature( `Only logged out users can access the page`, () => {
 } )
 
 feature( `A user can log in`, () => {
-	let authProvider: AuthProvider
+	let authProvider: AuthProvider, credentials: authCredentials
 	
 	given( () => {
 		authProvider = object<AuthProvider>()
-		when( authProvider.isAuthenticated() ).thenReturn( false )
+		credentials = fake<authCredentials>( "credentials" )
 	} )
+	
+	given( () => when( authProvider.isAuthenticated() ).thenReturn( false ) )
+	
+	given( () => when( authProvider.login( credentials ) ).thenResolve() )
 	
 	scenario( `Success`, () => {
 		then( `A loader is displayed`, () => {
 			render( <AuthenticationPage
 				authProvider={authProvider}
+				navigate={jest.fn()}
 			/> )
 			
 			const props: AuthenticationPageViewProps = [ ...(AuthenticationPageView as jest.Mock).mock.calls ].last()[ 0 ]
 			
-			act( () => props.onLogin( object<authCredentials>( "credentials" ) ) )
+			act( () => props.onLogin( credentials ) )
 			
 			expect( AuthenticationPageView ).lastCalledWith( expect.objectContaining( { loading: true } ), expect.anything() )
 		} )
 		
-		xand( `User is redirected to home`, () => {
-			const navigate    = func<NavigateFn>(),
-			      credentials = object<authCredentials>( "credentials" )
+		and( `User is redirected to home`, async () => {
+			const navigate = func<NavigateFn>()
+			
+			when( authProvider.login( credentials ) ).thenResolve()
 			
 			render( <AuthenticationPage
 				authProvider={authProvider}
 				navigate={navigate}
 			/> )
 			
-			when( authProvider.login( credentials ) ).thenResolve()
 			
 			const props: AuthenticationPageViewProps = [ ...(AuthenticationPageView as jest.Mock).mock.calls ].last()[ 0 ]
 			
 			act( () => props.onLogin( credentials ) )
+			
+			await Promise.resolve()
 			
 			verify( navigate( "/" ) )
 		} )
@@ -157,3 +167,20 @@ feature( `A user can log in`, () => {
 		} )
 	} )
 } )
+
+
+function fake<T>( name: string ): T
+{
+	return name as any as T
+}
+
+
+function aside<T>( cb: ( res: any ) => void ): ( res: T ) => T
+{
+	return ( res ) => {
+		
+		cb( res )
+		
+		return res
+	}
+}
