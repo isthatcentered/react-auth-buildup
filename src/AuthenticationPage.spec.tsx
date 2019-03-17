@@ -117,7 +117,7 @@ feature( `Only logged out users can access the page`, () => {
 feature( `A user can log in`, () => {
 	let credentials: authCredentials = fake<authCredentials>( "credentials" )
 	
-	scenario( `Success`, () => {
+	scenario( `Login successful`, () => {
 		given( () => {
 			when( authProvider.isAuthenticated() ).thenReturn( false )
 			when( authProvider.login( credentials ) ).thenResolve()
@@ -136,13 +136,13 @@ feature( `A user can log in`, () => {
 			
 			act( () => view.onLogin( credentials ) )
 			
-			await Promise.resolve()
+			await tick()
 			
 			verify( navigate( "/" ) )
 		} )
 	} )
 	
-	scenario( `Error`, () => {
+	scenario( `Login refused`, () => {
 		const error = fake<Error>( "error" )
 		
 		given( () => {
@@ -155,7 +155,7 @@ feature( `A user can log in`, () => {
 			
 			act( () => view.onLogin( credentials ) )
 			
-			await Promise.resolve()
+			await tick()
 			
 			expect( view.error ).toBe( error )
 		} )
@@ -165,7 +165,7 @@ feature( `A user can log in`, () => {
 			
 			act( () => view.onLogin( credentials ) )
 			
-			await Promise.resolve()
+			await tick()
 			
 			expect( view.loading ).toBe( false )
 		} )
@@ -212,4 +212,11 @@ function aside<T>( cb: ( res: any ) => void ): ( res: T ) => T
 		
 		return res
 	}
+}
+
+
+function tick(): Promise<undefined>
+{
+	return new Promise( resolve =>
+		process.nextTick( () => resolve() ) )
 }
