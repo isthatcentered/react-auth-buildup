@@ -10,8 +10,16 @@ import { and, feature, given, scenario, then } from "jest-case"
 
 type availableAuthenticationMethods = "signup" | "login"
 
+interface redirectMessage
+{
+	message: string,
+	timeout: number
+}
+
 interface AuthenticationPageViewProps extends HTMLAttributes<HTMLDivElement>
 {
+	authorized: redirectMessage | undefined
+	
 	tab: availableAuthenticationMethods
 	
 	error: Error | undefined;
@@ -53,7 +61,9 @@ export function AuthenticationPage( { authProvider, navigate, location, style = 
 {
 	const [ loading, setLoading ] = useState( false ),
 	      [ error, setError ]     = useState<Error | undefined>( undefined ),
-	      [ tab, setTab ]         = useState<availableAuthenticationMethods>( "login" )
+	      [ tab, setTab ]         = useState<availableAuthenticationMethods>( "login" ),
+	      [ message, setMessage ] = useState<redirectMessage | undefined>( undefined )
+	
 	
 	useLayoutEffect( () => {
 		if ( authProvider.isAuthenticated() )
@@ -67,11 +77,12 @@ export function AuthenticationPage( { authProvider, navigate, location, style = 
 		
 		authProvider
 			[ type ]( credentials )
-			.then( () => navigate!( "/" ) )
-			.catch( err => {
-				setError( err )
-				setLoading( false )
+			.then( () => {
+				setMessage( { message: "Log-in successful, redirecting to home", timeout: 3000 } )
+				setTimeout( () => navigate!( "/" ), 3000 )
 			} )
+			.catch( setError )
+			.finally( () => setLoading( false ) )
 	}
 	
 	
@@ -82,6 +93,7 @@ export function AuthenticationPage( { authProvider, navigate, location, style = 
 			className={`${className} AuthenticationPage`}
 		>
 			<AuthenticationPageView
+				authorized={message}
 				onLogin={credentials => authenticate( "login", credentials )}
 				onSignup={credentials => authenticate( "signup", credentials )}
 				loading={loading}
@@ -132,13 +144,13 @@ feature( `Only logged out users can access the page`, () => {
 feature( `A user can log in`, () => {
 	let credentials: authCredentials = fake<authCredentials>( "credentials" )
 	
-	scenario( `Login successful`, () => {
+	scenario( `Success`, () => {
 		given( () => {
 			when( authProvider.isAuthenticated() ).thenReturn( false )
 			when( authProvider.login( credentials ) ).thenResolve()
 		} )
 		
-		then( `A loader is displayed`, () => {
+		then( `A loader is displayed`, async () => {
 			const { view } = renderAuthPage( authProvider )
 			
 			view.onLogin( credentials )
@@ -146,12 +158,40 @@ feature( `A user can log in`, () => {
 			expect( view.loading ).toBe( true )
 		} )
 		
-		and( `User is redirected to home`, async () => {
+		and( `A success message is passed to the view`, async () => {
+			const { view } = renderAuthPage( authProvider )
+			
+			expect( view.authorized ).not.toBeDefined()
+			
+			view.onLogin( credentials )
+			
+			await tick()
+			
+			expect( view.authorized ).toBeDefined()
+		} )
+		
+		and( `The loader is disabled`, async () => {
+			jest.useFakeTimers()
+			
+			const { view } = renderAuthPage( authProvider )
+			
+			view.onLogin( credentials )
+			
+			await tick()
+			
+			expect( view.loading ).toBe( false )
+		} )
+		
+		then( `User is redirected to home after a timeout`, async () => {
 			const { view, navigate } = renderAuthPage( authProvider )
 			
 			view.onLogin( credentials )
 			
 			await tick()
+			
+			verify( navigate( "/" ), { times: 0 } )
+			
+			jest.advanceTimersByTime( 3000 )
 			
 			verify( navigate( "/" ) )
 		} )
@@ -202,24 +242,45 @@ feature( `A user can sign-in`, () => {
 			
 			view.onSignup( credentials )
 			
-			await tick()
-			
 			expect( view.loading ).toBe( true )
 		} )
 		
-		then( `User is redirected to home`, async () => {
+		and( `A success message is passed to the view`, async () => {
+			const { view } = renderAuthPage( authProvider )
+			
+			expect( view.authorized ).not.toBeDefined()
+			
+			view.onSignup( credentials )
+			
+			await tick()
+			
+			expect( view.authorized ).toBeDefined()
+		} )
+		
+		and( `The loader is disabled`, async () => {
+			jest.useFakeTimers()
+			
+			const { view } = renderAuthPage( authProvider )
+			
+			view.onSignup( credentials )
+			
+			await tick()
+			
+			expect( view.loading ).toBe( false )
+		} )
+		
+		then( `User is redirected to home after a timeout`, async () => {
 			const { view, navigate } = renderAuthPage( authProvider )
 			
 			view.onSignup( credentials )
 			
 			await tick()
 			
+			verify( navigate( "/" ), { times: 0 } )
+			
+			jest.advanceTimersByTime( 3000 )
+			
 			verify( navigate( "/" ) )
-		} )
-		
-		then( `User is redirected to home after message + timeout`, () => {
-			fail()
-			// @todo: display a "success message", redirecting in x
 		} )
 	} )
 	
@@ -272,6 +333,19 @@ feature( `Switching between login and sign-up tab`, () => {
 		view.onTabSelect( "login" )
 		expect( view.tab ).toBe( "login" )
 	} )
+} )
+
+xtest( `Separating "state" (loading, tab) and "dispatchers" (onlogin, onsigup,...)`, () => {
+	fail()
+} )
+
+xtest( `Does the design tell the right story, doesn't this do too much ?`, () => {
+	// maybe the only goal of this thing is to redirect
+	// and then there's a loginOrSignup component that handles the tab part
+	// and the a login and a signup component thath handle the submit
+	// the controller doesn't care which tab is active, it cares about signing up or logging in and preventing page access -> or rather providing the required data. nothing else
+	// i like a useGuard or a protected route component, the separation of singup/login logic i don't know
+	fail()
 } )
 
 
