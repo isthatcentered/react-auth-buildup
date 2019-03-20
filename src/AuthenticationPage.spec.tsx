@@ -1,6 +1,6 @@
 import * as React from "react"
 import { HTMLAttributes, ReactElement, useEffect } from "react"
-import { object, verify, when } from "testdouble"
+import { func, object, verify, when } from "testdouble"
 import { NavigateFn, RouteComponentProps } from "@reach/router"
 import { act, fireEvent, render } from "react-testing-library"
 import { feature, given, scenario } from "jest-then"
@@ -16,10 +16,8 @@ export interface AuthPageProps extends HTMLAttributes<HTMLDivElement>, RouteComp
 
 export function AuthPage( { gatekeeper, navigate, location, style = {}, className = "", children, ...props }: AuthPageProps )
 {
-	console.log( "WUUlUUT", gatekeeper.authenticated )
-	
 	useEffect( () => {
-		if ( gatekeeper.authenticated )
+		if ( gatekeeper.authenticated() )
 			navigate!( "/" )
 	} )
 	
@@ -37,24 +35,26 @@ export function AuthPage( { gatekeeper, navigate, location, style = {}, classNam
 
 interface Gatekeeper
 {
-	authenticated: boolean
+	authenticated(): boolean
 }
 
 feature( `Only non logged user can access the page`, () => {
 	scenario( `Already logged in`, () => {
 		given( () => {
 		
+		
 		} )
 		
 		test( `User is redirected to home`, () => {
-			const authProvider: Gatekeeper = object(),
-			      navigate: NavigateFn     = object()
+			const gatekeeper: Gatekeeper = object<Gatekeeper>(),
+			      navigate: NavigateFn   = func<NavigateFn>()
 			
-			// when( gatekeeper.authenticated ).thenReturn( true )
+			when( gatekeeper.authenticated() ).thenReturn( true )
 			
-			act( () =>
-				customRender( <AuthPage gatekeeper={authProvider}
-				                        navigate={navigate}/> ) )
+			act( () => {
+				customRender( <AuthPage gatekeeper={gatekeeper}
+				                        navigate={navigate}/> )
+			} )
 			
 			
 			verify( navigate( "/" ) )
