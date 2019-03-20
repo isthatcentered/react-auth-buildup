@@ -1,139 +1,101 @@
 import * as React from "react"
-import { FunctionComponent, HTMLAttributes, useLayoutEffect, useState } from "react"
-import { func, object, verify, when } from "testdouble"
+import { HTMLAttributes, ReactElement, useEffect } from "react"
+import { object, verify, when } from "testdouble"
 import { NavigateFn, RouteComponentProps } from "@reach/router"
-import { render } from "react-testing-library"
-import { and, feature, given, scenario, then } from "jest-case"
+import { act, fireEvent, render } from "react-testing-library"
+import { feature, given, scenario } from "jest-then"
 
 
 
 
-type availableAuthenticationMethods = "signup" | "login"
-
-interface redirectMessage
+export interface AuthPageProps extends HTMLAttributes<HTMLDivElement>, RouteComponentProps
 {
-	message: string,
-	timeout: number
-}
-
-interface AuthenticationPageViewProps extends HTMLAttributes<HTMLDivElement>
-{
-	authorized: redirectMessage | undefined
-	
-	tab: availableAuthenticationMethods
-	
-	error: Error | undefined;
-	
-	onTabSelect( tab: availableAuthenticationMethods ): any;
-	
-	onLogin( credentials: authCredentials ): any;
-	
-	onSignup( credentials: authCredentials ): any;
-	
-	loading: boolean
-}
-
-export interface authCredentials
-{
-	email: string
-	password: string
-}
-
-const AuthenticationPageView: FunctionComponent<AuthenticationPageViewProps> = jest.fn( ( props: AuthenticationPageViewProps ) => null )
-
-interface AuthProvider
-{
-	login( credentials: authCredentials ): Promise<undefined>;
-	
-	isAuthenticated(): boolean;
-	
-	signup( credentials: authCredentials ): Promise<undefined>
+	gatekeeper: Gatekeeper
 }
 
 
-export interface AuthenticationPageProps extends HTMLAttributes<HTMLDivElement>, RouteComponentProps
+export function AuthPage( { gatekeeper, navigate, location, style = {}, className = "", children, ...props }: AuthPageProps )
 {
-	authProvider: AuthProvider
-}
-
-
-export function AuthenticationPage( { authProvider, navigate, location, style = {}, className = "", children, ...props }: AuthenticationPageProps )
-{
-	const [ loading, setLoading ] = useState( false ),
-	      [ error, setError ]     = useState<Error | undefined>( undefined ),
-	      [ tab, setTab ]         = useState<availableAuthenticationMethods>( "login" ),
-	      [ message, setMessage ] = useState<redirectMessage | undefined>( undefined )
+	console.log( "WUUlUUT", gatekeeper.authenticated )
 	
-	
-	useLayoutEffect( () => {
-		if ( authProvider.isAuthenticated() )
+	useEffect( () => {
+		if ( gatekeeper.authenticated )
 			navigate!( "/" )
 	} )
-	
-	
-	function authenticate( type: "login" | "signup", credentials: authCredentials )
-	{
-		setLoading( true )
-		
-		authProvider
-			[ type ]( credentials )
-			.then( () => {
-				setMessage( { message: "Log-in successful, redirecting to home", timeout: 3000 } )
-				setTimeout( () => navigate!( "/" ), 3000 )
-			} )
-			.catch( setError )
-			.finally( () => setLoading( false ) )
-	}
-	
 	
 	return (
 		<div
 			{...props}
 			style={{ ...style }}
-			className={`${className} AuthenticationPage`}
+			className={`${className} AuthPage`}
 		>
-			<AuthenticationPageView
-				authorized={message}
-				onLogin={credentials => authenticate( "login", credentials )}
-				onSignup={credentials => authenticate( "signup", credentials )}
-				loading={loading}
-				error={error}
-				tab={tab}
-				onTabSelect={tab => setTab( tab )}
-			/>
+			AuthPage
 		</div>
 	)
 }
 
 
+interface Gatekeeper
+{
+	authenticated: boolean
+}
 
-let authProvider: AuthProvider
+feature( `Only non logged user can access the page`, () => {
+	scenario( `Already logged in`, () => {
+		given( () => {
+		
+		} )
+		
+		test( `User is redirected to home`, () => {
+			const authProvider: Gatekeeper = object(),
+			      navigate: NavigateFn     = object()
+			
+			// when( gatekeeper.authenticated ).thenReturn( true )
+			
+			act( () =>
+				customRender( <AuthPage gatekeeper={authProvider}
+				                        navigate={navigate}/> ) )
+			
+			
+			verify( navigate( "/" ) )
+		} )
+		
+	} )
+	
+	// @todo: not logged in
+	// @todo: add an onSuccess callback for the guy aove to handle the redirect
+} )
+
+
+
+/*
+let gatekeeper: AuthProvider
 
 beforeEach( () => {
 	(AuthenticationPageView as jest.Mock).mockClear();
-	authProvider = object<AuthProvider>()
+	gatekeeper = object<AuthProvider>()
 } )
 
 feature( `Only logged out users can access the page`, () => {
 	beforeEach( () => {
-		authProvider = object<AuthProvider>()
+		gatekeeper = object<AuthProvider>()
 	} )
 	
 	scenario( `Already logged in`, () => {
-		given( () => when( authProvider.isAuthenticated() ).thenReturn( true ) )
+		given( () => when( gatekeeper.isAuthenticated() ).thenReturn( true ) )
 		
 		then( `User is redirected to home`, () => {
-			const { navigate } = renderAuthPage( authProvider )
+			const { navigate } = renderAuthPage( gatekeeper )
 			
 			verify( navigate( "/" ) )
 		} )
 	} )
 	
 	scenario( `Not logged in`, () => {
-		given( () => when( authProvider.isAuthenticated() ).thenReturn( false ) )
+		given( () => when( gatekeeper.isAuthenticated() ).thenReturn( false ) )
 		
 		then( `User is not redirected to home`, () => {
-			const { navigate } = renderAuthPage( authProvider )
+			const { navigate } = renderAuthPage( gatekeeper )
 			
 			verify( navigate( "/" ), { times: 0 } )
 		} )
@@ -146,12 +108,12 @@ feature( `A user can log in`, () => {
 	
 	scenario( `Success`, () => {
 		given( () => {
-			when( authProvider.isAuthenticated() ).thenReturn( false )
-			when( authProvider.login( credentials ) ).thenResolve()
+			when( gatekeeper.isAuthenticated() ).thenReturn( false )
+			when( gatekeeper.login( credentials ) ).thenResolve()
 		} )
 		
 		then( `A loader is displayed`, async () => {
-			const { view } = renderAuthPage( authProvider )
+			const { view } = renderAuthPage( gatekeeper )
 			
 			view.onLogin( credentials )
 			
@@ -159,7 +121,7 @@ feature( `A user can log in`, () => {
 		} )
 		
 		and( `A success message is passed to the view`, async () => {
-			const { view } = renderAuthPage( authProvider )
+			const { view } = renderAuthPage( gatekeeper )
 			
 			expect( view.authorized ).not.toBeDefined()
 			
@@ -173,7 +135,7 @@ feature( `A user can log in`, () => {
 		and( `The loader is disabled`, async () => {
 			jest.useFakeTimers()
 			
-			const { view } = renderAuthPage( authProvider )
+			const { view } = renderAuthPage( gatekeeper )
 			
 			view.onLogin( credentials )
 			
@@ -183,7 +145,7 @@ feature( `A user can log in`, () => {
 		} )
 		
 		then( `User is redirected to home after a timeout`, async () => {
-			const { view, navigate } = renderAuthPage( authProvider )
+			const { view, navigate } = renderAuthPage( gatekeeper )
 			
 			view.onLogin( credentials )
 			
@@ -201,12 +163,12 @@ feature( `A user can log in`, () => {
 		const error = fake<Error>( "error" )
 		
 		given( () => {
-			when( authProvider.isAuthenticated() ).thenReturn( false )
-			when( authProvider.login( credentials ) ).thenReject( error )
+			when( gatekeeper.isAuthenticated() ).thenReturn( false )
+			when( gatekeeper.login( credentials ) ).thenReject( error )
 		} )
 		
 		then( `An error message is passed to the view`, async () => {
-			const { view } = renderAuthPage( authProvider )
+			const { view } = renderAuthPage( gatekeeper )
 			
 			view.onLogin( credentials )
 			
@@ -216,7 +178,7 @@ feature( `A user can log in`, () => {
 		} )
 		
 		and( `Loader is disabled`, async () => {
-			const { view } = renderAuthPage( authProvider )
+			const { view } = renderAuthPage( gatekeeper )
 			
 			view.onLogin( credentials )
 			
@@ -233,12 +195,12 @@ feature( `A user can sign-in`, () => {
 	
 	scenario( `Success`, () => {
 		given( () => {
-			when( authProvider.isAuthenticated() ).thenReturn( false )
-			when( authProvider.signup( credentials ) ).thenResolve()
+			when( gatekeeper.isAuthenticated() ).thenReturn( false )
+			when( gatekeeper.signup( credentials ) ).thenResolve()
 		} )
 		
 		then( `A loader is displayed`, async () => {
-			const { view } = renderAuthPage( authProvider )
+			const { view } = renderAuthPage( gatekeeper )
 			
 			view.onSignup( credentials )
 			
@@ -246,7 +208,7 @@ feature( `A user can sign-in`, () => {
 		} )
 		
 		and( `A success message is passed to the view`, async () => {
-			const { view } = renderAuthPage( authProvider )
+			const { view } = renderAuthPage( gatekeeper )
 			
 			expect( view.authorized ).not.toBeDefined()
 			
@@ -260,7 +222,7 @@ feature( `A user can sign-in`, () => {
 		and( `The loader is disabled`, async () => {
 			jest.useFakeTimers()
 			
-			const { view } = renderAuthPage( authProvider )
+			const { view } = renderAuthPage( gatekeeper )
 			
 			view.onSignup( credentials )
 			
@@ -270,7 +232,7 @@ feature( `A user can sign-in`, () => {
 		} )
 		
 		then( `User is redirected to home after a timeout`, async () => {
-			const { view, navigate } = renderAuthPage( authProvider )
+			const { view, navigate } = renderAuthPage( gatekeeper )
 			
 			view.onSignup( credentials )
 			
@@ -288,12 +250,12 @@ feature( `A user can sign-in`, () => {
 		const error = fake<Error>( "error" )
 		
 		given( () => {
-			when( authProvider.isAuthenticated() ).thenReturn( false )
-			when( authProvider.signup( credentials ) ).thenReject( error )
+			when( gatekeeper.isAuthenticated() ).thenReturn( false )
+			when( gatekeeper.signup( credentials ) ).thenReject( error )
 		} )
 		
 		then( `An error message is passed to the view`, async () => {
-			const { view } = renderAuthPage( authProvider )
+			const { view } = renderAuthPage( gatekeeper )
 			
 			view.onSignup( credentials )
 			
@@ -303,7 +265,7 @@ feature( `A user can sign-in`, () => {
 		} )
 		
 		and( `Loader is disabled`, async () => {
-			const { view } = renderAuthPage( authProvider )
+			const { view } = renderAuthPage( gatekeeper )
 			
 			view.onSignup( credentials )
 			
@@ -316,13 +278,13 @@ feature( `A user can sign-in`, () => {
 
 feature( `Switching between login and sign-up tab`, () => {
 	test( `Login tab is active by default`, () => {
-		const { view } = renderAuthPage( authProvider )
+		const { view } = renderAuthPage( gatekeeper )
 		
 		expect( view.tab ).toBe( "login" )
 	} )
 	
 	test( `View gets the new activated tab`, () => {
-		const { view } = renderAuthPage( authProvider )
+		const { view } = renderAuthPage( gatekeeper )
 		
 		view.onTabSelect( "signup" )
 		expect( view.tab ).toBe( "signup" )
@@ -348,12 +310,11 @@ xtest( `Does the design tell the right story, doesn't this do too much ?`, () =>
 	fail()
 } )
 
-
-function renderAuthPage( authProvider: AuthProvider )
+function renderAuthPage( gatekeeper: AuthProvider )
 {
 	const navigate = func<NavigateFn>(),
 	      wrapper  = render( <AuthenticationPage
-		      authProvider={authProvider}
+		      gatekeeper={gatekeeper}
 		      navigate={navigate}
 	      /> )
 	
@@ -367,10 +328,11 @@ function renderAuthPage( authProvider: AuthProvider )
 	return {
 		...wrapper,
 		navigate,
-		authProvider,
+		gatekeeper,
 		view,
 	}
 }
+*/
 
 
 function fake<T>( name: string ): T
@@ -394,4 +356,34 @@ export function tick(): Promise<undefined>
 {
 	return new Promise( resolve =>
 		process.nextTick( () => resolve() ) )
+}
+
+
+export function customRender( component: ReactElement<any> )
+{
+	const utils = render( component )
+	
+	const change = ( label: RegExp, value: any ) =>
+		fireEvent.change( utils.getByLabelText( label ), { target: { value } } )
+	
+	const fill = ( label: RegExp, value: string ) => change( label, value )
+	
+	const slide = ( label: RegExp, value: number ) => change( label, value )
+	
+	const click = ( label: RegExp ) =>
+		fireEvent.click( utils.getByText( label ) )
+	
+	const submit = ( label: RegExp ) =>
+		fireEvent.submit( (utils.getByText( label ) as HTMLElement).closest( "form" )! )
+	
+	
+	return {
+		...utils,
+		wrapper: utils.container.firstChild as HTMLElement,
+		change,
+		fill,
+		slide,
+		click,
+		submit,
+	}
 }
