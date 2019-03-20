@@ -33,7 +33,7 @@ interface AuthenticationPageViewProps extends HTMLAttributes<HTMLDivElement>
 	loading: boolean
 }
 
-interface authCredentials
+export interface authCredentials
 {
 	email: string
 	password: string
@@ -390,7 +390,7 @@ function aside<T>( cb: ( res: any ) => void ): ( res: T ) => T
 }
 
 
-function tick(): Promise<undefined>
+export function tick(): Promise<undefined>
 {
 	return new Promise( resolve =>
 		process.nextTick( () => resolve() ) )
