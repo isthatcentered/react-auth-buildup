@@ -11,7 +11,7 @@ import { authCredentials, Gatekeeper } from "./Gatekeeper"
 
 
 
-export const gatekeeper: Gatekeeper = object<Gatekeeper>()
+ const gatekeeper: Gatekeeper = object<Gatekeeper>()
 
 feature( `Only non logged user can access the page`, () => {
 	scenario( `Already logged in`, () => {

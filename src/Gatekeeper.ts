@@ -6,9 +6,9 @@ export interface authCredentials
 
 export interface Gatekeeper
 {
-	signup( credentials: authCredentials ): Promise<undefined>;
+	signup( credentials: authCredentials ): Promise<void>;
 	
-	login( credentials: authCredentials ): Promise<undefined>;
+	login( credentials: authCredentials ): Promise<void>;
 	
 	authenticated(): boolean
 }
