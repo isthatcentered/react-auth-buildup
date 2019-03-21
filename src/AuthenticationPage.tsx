@@ -1,8 +1,8 @@
 import * as React from "react"
-import { FormEvent, HTMLAttributes, useEffect, useState } from "react"
+import { HTMLAttributes, useEffect, useState } from "react"
 import { RouteComponentProps } from "@reach/router"
-import { object } from "testdouble"
-import { Gatekeeper } from "./Gatekeeper"
+import { authCredentials, Gatekeeper } from "./Gatekeeper"
+import { AuthenticationForm } from "./AuthenticationForm"
 
 
 
@@ -23,28 +23,16 @@ export function AuthPage( { gatekeeper, navigate, location, style = {}, classNam
 	} )
 	
 	
-	function handleLogin( e: FormEvent<HTMLFormElement> )
+	function handleLogin( credentitals: authCredentials )
 	{
-		e.preventDefault()
-		
-		const data     = new FormData( e.target as HTMLFormElement ),
-		      email    = data.get( "email" ) as string,
-		      password = data.get( "password" ) as string
-		
-		gatekeeper.login( { email, password } )
+		gatekeeper.login( credentitals )
 			.then( () => navigate!( "/" ) )
 	}
 	
 	
-	function handleSignup( e: FormEvent<HTMLFormElement> )
+	function handleSignup( credentitals: authCredentials )
 	{
-		e.preventDefault()
-		
-		const data     = new FormData( e.target as HTMLFormElement ),
-		      email    = data.get( "email" ) as string,
-		      password = data.get( "password" ) as string
-		
-		gatekeeper.signup( { email, password } )
+		gatekeeper.signup( credentitals )
 			.then( () => navigate!( "/" ) )
 	}
 	
@@ -53,10 +41,10 @@ export function AuthPage( { gatekeeper, navigate, location, style = {}, classNam
 		<div
 			{...props}
 			style={{ ...style }}
-			className={`${className} AuthPage`}
+			className={`${className} AuthPage flex items-center justify-center min-h-screen`}
 		>
 			
-			<section>
+			<section className="w-full max-w-xs">
 				<nav>
 					<ul>
 						<li>
@@ -72,43 +60,17 @@ export function AuthPage( { gatekeeper, navigate, location, style = {}, classNam
 					switch ( tab ) {
 						case "login":
 							return (
-								<div>
-									<form onSubmit={handleLogin}>
-										<label>
-											Email
-											<input type="email"
-											       name="email"/>
-										</label>
-										
-										<label>
-											Password
-											<input type="password"
-											       name="password"/>
-										</label>
-										
-										<button type="submit">Log me in</button>
-									</form>
-								</div>)
+								<AuthenticationForm
+									onAuthenticate={handleLogin}
+									cta="Log me in"
+								/>)
 						
 						case "signup":
 							return (
-								<div>
-									<form onSubmit={handleSignup}>
-										<label>
-											Email
-											<input type="email"
-											       name="email"/>
-										</label>
-										
-										<label>
-											Password
-											<input type="password"
-											       name="password"/>
-										</label>
-										
-										<button type="submit">Sign me up</button>
-									</form>
-								</div>)
+								<AuthenticationForm
+									onAuthenticate={handleSignup}
+									cta="Sign me up"
+								/>)
 						
 						default:
 							const ensureAllCasesHandled: never = tab
