@@ -17,7 +17,7 @@ export function Button( { style = {}, className = "", children, ...props }: Butt
 		<button
 			{...props}
 			style={{ ...style }}
-			className={`${className} Button bg-blue hover:bg-blue-dark text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`}
+			className={`${className} Button bg-blue hover:bg-blue-dark text-white font-bold px-4 py-3 rounded focus:outline-none focus:shadow-outline`}
 		>
 			{children}
 		</button>
@@ -39,7 +39,7 @@ export function Input( { style = {}, className = "", children, ...props }: Input
 		<input
 			{...props}
 			style={{ ...style }}
-			className={`${className} Input shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker leading-tight focus:outline-none focus:shadow-outline`}
+			className={`${className} Input shadow appearance-none border rounded w-full p-3 text-grey-darker leading-tight focus:outline-none focus:shadow-outline`}
 		/>
 	)
 }

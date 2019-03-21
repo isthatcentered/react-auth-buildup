@@ -45,38 +45,49 @@ export function AuthPage( { gatekeeper, navigate, location, style = {}, classNam
 		>
 			
 			<section className="w-full max-w-xs">
-				<nav>
-					<ul>
-						<li>
-							<button onClick={() => setTab( "login" )}>Login</button>
-						</li>
-						<li>
-							<button onClick={() => setTab( "signup" )}>Signup</button>
-						</li>
-					</ul>
-				</nav>
-				
-				{(() => {
-					switch ( tab ) {
-						case "login":
-							return (
-								<AuthenticationForm
-									onAuthenticate={handleLogin}
-									cta="Log me in"
-								/>)
-						
-						case "signup":
-							return (
-								<AuthenticationForm
-									onAuthenticate={handleSignup}
-									cta="Sign me up"
-								/>)
-						
-						default:
-							const ensureAllCasesHandled: never = tab
-					}
-				})()}
-			
+				<div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 overflow-hidden">
+					
+					<nav className="mb-6">
+						<ul className="list-reset -mx-8 -mt-6 flex bg-grey-lightest">
+							<li className="w-1/2">
+								<button
+									className="w-full p-4 bg-white text-blue-darker border border-transparent rounded-lr"
+									onClick={() => setTab( "login" )}>
+									Login
+								</button>
+							</li>
+							<li className="w-1/2 ">
+								<button
+									className="w-full p-4 text-grey-darkest border border-grey-lighter rounded-tr"
+									onClick={() => setTab( "signup" )}
+								>
+									Signup
+								</button>
+							</li>
+						</ul>
+					</nav>
+					
+					{(() => {
+						switch ( tab ) {
+							case "login":
+								return (
+									<AuthenticationForm
+										onAuthenticate={handleLogin}
+										cta="Log me in"
+									/>)
+							
+							case "signup":
+								return (
+									<AuthenticationForm
+										onAuthenticate={handleSignup}
+										cta="Sign me up"
+									/>)
+							
+							default:
+								const ensureAllCasesHandled: never = tab
+						}
+					})()}
+				</div>
 			</section>
 		</div>
 	)

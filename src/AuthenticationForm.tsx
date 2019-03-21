@@ -41,15 +41,15 @@ export function AuthenticationForm( { cta = "go", onAuthenticate, style = {}, cl
 		>
 			<form
 				onSubmit={handleSubmit}
-				className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4"
+				style={{ width: 500, maxWidth: "100%" }}
 			>
-				<Label className="mb-4">
+				<Label className="mb-8">
 					<LabelText>Email</LabelText>
 					<Input type="email"
 					       name="email"/>
 				</Label>
 				
-				<Label className="mb-4">
+				<Label className="mb-8">
 					<LabelText>Password</LabelText>
 					<Input type="password"
 					       name="password"/>
