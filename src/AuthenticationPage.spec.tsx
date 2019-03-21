@@ -3,7 +3,7 @@ import { HTMLAttributes, ReactElement, useEffect } from "react"
 import { func, object, verify, when } from "testdouble"
 import { NavigateFn, RouteComponentProps } from "@reach/router"
 import { act, fireEvent, render } from "react-testing-library"
-import { feature, given, scenario } from "jest-then"
+import { feature, given, scenario, then } from "jest-then"
 
 
 
@@ -42,24 +42,38 @@ feature( `Only non logged user can access the page`, () => {
 	scenario( `Already logged in`, () => {
 		given( () => {
 		
-		
 		} )
 		
-		test( `User is redirected to home`, () => {
+		then( `User is redirected to home`, () => {
 			const gatekeeper: Gatekeeper = object<Gatekeeper>(),
 			      navigate: NavigateFn   = func<NavigateFn>()
 			
 			when( gatekeeper.authenticated() ).thenReturn( true )
 			
-			act( () => {
 				customRender( <AuthPage gatekeeper={gatekeeper}
 				                        navigate={navigate}/> )
-			} )
 			
 			
 			verify( navigate( "/" ) )
 		} )
+	} )
+	
+	scenario( `Already logged in`, () => {
+		given( () => {
 		
+		} )
+		
+		then( `User is redirected to home`, () => {
+			const gatekeeper: Gatekeeper = object<Gatekeeper>(),
+			      navigate: NavigateFn   = func<NavigateFn>()
+			
+			when( gatekeeper.authenticated() ).thenReturn( false )
+			
+				customRender( <AuthPage gatekeeper={gatekeeper}
+				                        navigate={navigate}/> )
+			
+			verify( navigate( "/" ), { times: 0 } )
+		} )
 	} )
 	
 	// @todo: not logged in
