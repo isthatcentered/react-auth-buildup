@@ -1,12 +1,54 @@
 import * as React from "react"
-import { HTMLAttributes, ReactElement, useEffect } from "react"
+import { FormEvent, HTMLAttributes, ReactElement, useEffect, useState } from "react"
 import { func, object, verify, when } from "testdouble"
-import { NavigateFn, RouteComponentProps } from "@reach/router"
-import { act, fireEvent, render } from "react-testing-library"
-import { feature, given, scenario, then } from "jest-then"
+import { createHistory, createMemorySource, LocationProvider, NavigateFn, RouteComponentProps, Router } from "@reach/router"
+import { fireEvent, render } from "react-testing-library"
+import { feature, given, scenario, then, xfeature } from "jest-then"
 
 
 
+
+export interface AppProps extends HTMLAttributes<HTMLDivElement>
+{
+	gatekeeper: Gatekeeper
+}
+
+
+export function App( { gatekeeper, style = {}, className = "", children, ...props }: AppProps )
+{
+	
+	return (
+		<div
+			{...props}
+			style={{ ...style }}
+			className={`${className} App`}
+		>
+			<Router>
+				<AuthPage
+					path="/authenticate"
+					gatekeeper={gatekeeper}
+				/>
+			</Router>
+		</div>
+	)
+}
+
+
+
+interface authCredentials
+{
+	email: string
+	password: string
+}
+
+interface Gatekeeper
+{
+	signup( credentials: authCredentials ): Promise<undefined>;
+	
+	login( credentials: authCredentials ): Promise<undefined>;
+	
+	authenticated(): boolean
+}
 
 export interface AuthPageProps extends HTMLAttributes<HTMLDivElement>, RouteComponentProps
 {
@@ -16,10 +58,39 @@ export interface AuthPageProps extends HTMLAttributes<HTMLDivElement>, RouteComp
 
 export function AuthPage( { gatekeeper, navigate, location, style = {}, className = "", children, ...props }: AuthPageProps )
 {
+	const [ tab, setTab ] = useState<"login" | "signup">( "login" )
+	
 	useEffect( () => {
 		if ( gatekeeper.authenticated() )
 			navigate!( "/" )
 	} )
+	
+	
+	function handleLogin( e: FormEvent<HTMLFormElement> )
+	{
+		e.preventDefault()
+		
+		const data     = new FormData( e.target as HTMLFormElement ),
+		      email    = data.get( "email" ) as string,
+		      password = data.get( "password" ) as string
+		
+		gatekeeper.login( { email, password } )
+			.then( () => navigate!( "/" ) )
+	}
+	
+	
+	function handleSignup( e: FormEvent<HTMLFormElement> )
+	{
+		e.preventDefault()
+		
+		const data     = new FormData( e.target as HTMLFormElement ),
+		      email    = data.get( "email" ) as string,
+		      password = data.get( "password" ) as string
+		
+		gatekeeper.signup( { email, password } )
+			.then( () => navigate!( "/" ) )
+	}
+	
 	
 	return (
 		<div
@@ -27,59 +98,182 @@ export function AuthPage( { gatekeeper, navigate, location, style = {}, classNam
 			style={{ ...style }}
 			className={`${className} AuthPage`}
 		>
-			AuthPage
+			
+			<section>
+				<nav>
+					<ul>
+						<li>
+							<button onClick={() => setTab( "login" )}>Login</button>
+						</li>
+						<li>
+							<button onClick={() => setTab( "signup" )}>Signup</button>
+						</li>
+					</ul>
+				</nav>
+				
+				{(() => {
+					switch ( tab ) {
+						case "login":
+							return (
+								<div>
+									<form onSubmit={handleLogin}>
+										<label>
+											Email
+											<input type="email"
+											       name="email"/>
+										</label>
+										
+										<label>
+											Password
+											<input type="password"
+											       name="password"/>
+										</label>
+										
+										<button type="submit">Log me in</button>
+									</form>
+								</div>)
+						
+						case "signup":
+							return (
+								<div>
+									<form onSubmit={handleSignup}>
+										<label>
+											Email
+											<input type="email"
+											       name="email"/>
+										</label>
+										
+										<label>
+											Password
+											<input type="password"
+											       name="password"/>
+										</label>
+										
+										<button type="submit">Sign me up</button>
+									</form>
+								</div>)
+						
+						default:
+							const ensureAllCasesHandled: never = tab
+					}
+				})()}
+			
+			</section>
 		</div>
 	)
 }
 
 
-interface Gatekeeper
-{
-	authenticated(): boolean
-}
+const gatekeeper: Gatekeeper = object<Gatekeeper>()
 
 feature( `Only non logged user can access the page`, () => {
 	scenario( `Already logged in`, () => {
-		given( () => {
-		
-		} )
+		given( () => when( gatekeeper.authenticated() ).thenReturn( true ) )
 		
 		then( `User is redirected to home`, () => {
-			const gatekeeper: Gatekeeper = object<Gatekeeper>(),
-			      navigate: NavigateFn   = func<NavigateFn>()
+			const navigate: NavigateFn = func<NavigateFn>()
 			
-			when( gatekeeper.authenticated() ).thenReturn( true )
-			
-				customRender( <AuthPage gatekeeper={gatekeeper}
-				                        navigate={navigate}/> )
-			
+			customRender( <AuthPage gatekeeper={gatekeeper}
+			                        navigate={navigate}/> )
 			
 			verify( navigate( "/" ) )
 		} )
 	} )
 	
-	scenario( `Already logged in`, () => {
-		given( () => {
-		
-		} )
-		
-		then( `User is redirected to home`, () => {
-			const gatekeeper: Gatekeeper = object<Gatekeeper>(),
-			      navigate: NavigateFn   = func<NavigateFn>()
-			
-			when( gatekeeper.authenticated() ).thenReturn( false )
-			
-				customRender( <AuthPage gatekeeper={gatekeeper}
-				                        navigate={navigate}/> )
-			
-			verify( navigate( "/" ), { times: 0 } )
-		} )
-	} )
-	
-	// @todo: not logged in
-	// @todo: add an onSuccess callback for the guy aove to handle the redirect
+	// @todo: not logged in case
+	// @todo: add an onSuccess callback for the guy above to handle the redirect
+	// @todo: move to custom useGuard(onSuccess, onError) / useAlreadyLoggedInGuard()
 } )
 
+feature( `A user can log in`, () => {
+	const CREDENTIALS: Readonly<authCredentials> = { email: "user@email.com", password: "password" }
+	
+	given( () => when( gatekeeper.authenticated() ).thenReturn( false ) )
+	
+	given( () => when( gatekeeper.login( CREDENTIALS ) ).thenResolve() )
+	
+	then( `I should be redirected to home`, async () => {
+		const { login, navigate, debug } = renderAuthPage()
+		
+		login( CREDENTIALS )
+
+		verify( navigate( "/", undefined ), { times: 0 } )
+		
+		await tick()
+		
+		verify( navigate( "/", undefined ), { times: 1 } )
+	} )
+	
+	
+	// @todo: Empty form cannot submit
+	// @todo: Login rejected
+	// @todo: Display a message on login fail
+	// @todo: Display a message on login success
+	// @todo: Timed out redirect on login success
+	// @todo: Loading state during authentication
+} )
+
+feature( `A user can sign up`, () => {
+	const CREDENTIALS: Readonly<authCredentials> = { email: "user@email.com", password: "password" }
+	
+	given( () => when( gatekeeper.authenticated() ).thenReturn( false ) )
+	
+	given( () => when( gatekeeper.signup( CREDENTIALS ) ).thenResolve() )
+	
+	then( `I should be redirected to home`, async () => {
+		const { signup, navigate, click, debug } = renderAuthPage()
+		
+		click( /signup/i )
+		
+		signup( CREDENTIALS )
+		
+		verify( navigate( "/", undefined ), { times: 0 } )
+		
+		await tick()
+		
+		verify( navigate( "/", undefined ), { times: 1 } )
+	} )
+	
+	
+	// @todo: Switching tabs back and forth
+	// @todo: Extract auth method, this is the same thing as login
+	// @todo: onSucces/onError callback
+	// @todo: tabs controlled by url
+} )
+
+
+
+function renderAuthPage( gatekeep: Gatekeeper = gatekeeper )
+{
+	const history = {
+		...createHistory( createMemorySource( "/authenticate" ) ),
+		navigate: func<NavigateFn>(),
+	}
+	
+	const wrapper = customRender(
+		<LocationProvider history={history}>
+			<App gatekeeper={gatekeeper}/>
+		</LocationProvider>,
+	)
+	
+	const login = ( { email, password }: authCredentials ) => {
+		wrapper.fill( /email/i, email )
+		wrapper.fill( /password/i, password )
+		wrapper.click( /log me in/i )
+	}
+	const signup = ( { email, password }: authCredentials ) => {
+		wrapper.fill( /email/i, email )
+		wrapper.fill( /password/i, password )
+		wrapper.click( /sign me up/i )
+	}
+	
+	return {
+		...wrapper,
+		login,
+		signup,
+		navigate: history.navigate,
+	}
+}
 
 
 /*
