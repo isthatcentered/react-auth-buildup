@@ -7,42 +7,58 @@ import { authCredentials } from "./Gatekeeper"
 
 
 
-test( `Calls "onSubmit" prop with email and passwor`, () => {
-	const onAuth                               = func<any>(),
-	      { email, password }: authCredentials = {
-		      email:    "user@email.com",
-		      password: "password$",
-	      },
-	      { fill, click }                      = customRender( <AuthenticationForm
-		      cta="Submit"
-		      onAuthenticate={onAuth}
-	      /> )
+describe( `<AuthenticationForm/>`, () => {
+	test( `Calls "onSubmit" prop with email and passwor`, () => {
+		const credentials: authCredentials                   = {
+			      email:    "user@email.com",
+			      password: "password$",
+		      },
+		      { fillInCredentialsAndSubmit, onAuthCallback } = renderAuthForm()
+		
+		fillInCredentialsAndSubmit( credentials )
+		
+		verify( onAuthCallback( credentials ) )
+	} )
 	
-	fill( /email/i, email )
-	fill( /password/i, password )
-	click( /submit/i )
-	
-	verify( onAuth( { email, password } ) )
+	test( `Cannot submit if one the fields is empty`, () => {
+		const EMPTY: string                                  = "",
+		      { fillInCredentialsAndSubmit, onAuthCallback } = renderAuthForm()
+		
+		fillInCredentialsAndSubmit( { email: "email", password: EMPTY } )
+		
+		verify( onAuthCallback( matchers.anything() ), { times: 0 } )
+		
+		fillInCredentialsAndSubmit( { email: EMPTY, password: "password" } )
+		
+		verify( onAuthCallback( matchers.anything() ), { times: 0 } )
+	} )
 } )
 
-test( `Cannot submit if one the fields is empty`, () => {
-	const onAuth          = func<any>(),
-	      { fill, click } = customRender( <AuthenticationForm
-		      cta="Submit"
-		      onAuthenticate={onAuth}
-	      /> )
+
+function renderAuthForm()
+{
+	const onAuthCallback = func<any>(),
+	      cta: string    = "Submit"
 	
-	fill( /email/i, "email" )
-	fill( /password/i, "" )
+	const wrapper = customRender( <AuthenticationForm
+		cta={cta}
+		onAuthenticate={onAuthCallback}
+	/> )
 	
-	click( /submit/i )
 	
-	verify( onAuth( matchers.anything() ), { times: 0 } )
+	function fillInCredentialsAndSubmit( { email, password }: authCredentials )
+	{
+		wrapper.fill( /email/i, email )
+		
+		wrapper.fill( /password/i, password )
+		
+		wrapper.click( new RegExp( cta ) )
+	}
 	
-	fill( /email/i, "" )
-	fill( /password/i, "password" )
-	
-	click( /submit/i )
-	
-	verify( onAuth( matchers.anything() ), { times: 0 } )
-} )
+	return {
+		...wrapper,
+		onAuthCallback,
+		fillInCredentialsAndSubmit,
+	}
+}
+
