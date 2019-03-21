@@ -1,170 +1,17 @@
 import * as React from "react"
-import { FormEvent, HTMLAttributes, ReactElement, useEffect, useState } from "react"
+import { ReactElement } from "react"
 import { func, object, verify, when } from "testdouble"
-import { createHistory, createMemorySource, LocationProvider, NavigateFn, RouteComponentProps, Router } from "@reach/router"
+import { createHistory, createMemorySource, LocationProvider, NavigateFn } from "@reach/router"
 import { fireEvent, render } from "react-testing-library"
-import { feature, given, scenario, then, xfeature } from "jest-then"
+import { feature, given, scenario, then } from "jest-then"
+import { App } from "./App"
+import { AuthPage } from "./AuthenticationPage"
+import { authCredentials, Gatekeeper } from "./Gatekeeper"
 
 
 
 
-export interface AppProps extends HTMLAttributes<HTMLDivElement>
-{
-	gatekeeper: Gatekeeper
-}
-
-
-export function App( { gatekeeper, style = {}, className = "", children, ...props }: AppProps )
-{
-	
-	return (
-		<div
-			{...props}
-			style={{ ...style }}
-			className={`${className} App`}
-		>
-			<Router>
-				<AuthPage
-					path="/authenticate"
-					gatekeeper={gatekeeper}
-				/>
-			</Router>
-		</div>
-	)
-}
-
-
-
-interface authCredentials
-{
-	email: string
-	password: string
-}
-
-interface Gatekeeper
-{
-	signup( credentials: authCredentials ): Promise<undefined>;
-	
-	login( credentials: authCredentials ): Promise<undefined>;
-	
-	authenticated(): boolean
-}
-
-export interface AuthPageProps extends HTMLAttributes<HTMLDivElement>, RouteComponentProps
-{
-	gatekeeper: Gatekeeper
-}
-
-
-export function AuthPage( { gatekeeper, navigate, location, style = {}, className = "", children, ...props }: AuthPageProps )
-{
-	const [ tab, setTab ] = useState<"login" | "signup">( "login" )
-	
-	useEffect( () => {
-		if ( gatekeeper.authenticated() )
-			navigate!( "/" )
-	} )
-	
-	
-	function handleLogin( e: FormEvent<HTMLFormElement> )
-	{
-		e.preventDefault()
-		
-		const data     = new FormData( e.target as HTMLFormElement ),
-		      email    = data.get( "email" ) as string,
-		      password = data.get( "password" ) as string
-		
-		gatekeeper.login( { email, password } )
-			.then( () => navigate!( "/" ) )
-	}
-	
-	
-	function handleSignup( e: FormEvent<HTMLFormElement> )
-	{
-		e.preventDefault()
-		
-		const data     = new FormData( e.target as HTMLFormElement ),
-		      email    = data.get( "email" ) as string,
-		      password = data.get( "password" ) as string
-		
-		gatekeeper.signup( { email, password } )
-			.then( () => navigate!( "/" ) )
-	}
-	
-	
-	return (
-		<div
-			{...props}
-			style={{ ...style }}
-			className={`${className} AuthPage`}
-		>
-			
-			<section>
-				<nav>
-					<ul>
-						<li>
-							<button onClick={() => setTab( "login" )}>Login</button>
-						</li>
-						<li>
-							<button onClick={() => setTab( "signup" )}>Signup</button>
-						</li>
-					</ul>
-				</nav>
-				
-				{(() => {
-					switch ( tab ) {
-						case "login":
-							return (
-								<div>
-									<form onSubmit={handleLogin}>
-										<label>
-											Email
-											<input type="email"
-											       name="email"/>
-										</label>
-										
-										<label>
-											Password
-											<input type="password"
-											       name="password"/>
-										</label>
-										
-										<button type="submit">Log me in</button>
-									</form>
-								</div>)
-						
-						case "signup":
-							return (
-								<div>
-									<form onSubmit={handleSignup}>
-										<label>
-											Email
-											<input type="email"
-											       name="email"/>
-										</label>
-										
-										<label>
-											Password
-											<input type="password"
-											       name="password"/>
-										</label>
-										
-										<button type="submit">Sign me up</button>
-									</form>
-								</div>)
-						
-						default:
-							const ensureAllCasesHandled: never = tab
-					}
-				})()}
-			
-			</section>
-		</div>
-	)
-}
-
-
-const gatekeeper: Gatekeeper = object<Gatekeeper>()
+export const gatekeeper: Gatekeeper = object<Gatekeeper>()
 
 feature( `Only non logged user can access the page`, () => {
 	scenario( `Already logged in`, () => {
@@ -196,7 +43,7 @@ feature( `A user can log in`, () => {
 		const { login, navigate, debug } = renderAuthPage()
 		
 		login( CREDENTIALS )
-
+		
 		verify( navigate( "/", undefined ), { times: 0 } )
 		
 		await tick()
