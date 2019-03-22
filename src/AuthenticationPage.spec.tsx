@@ -3,7 +3,7 @@ import { ReactElement } from "react"
 import { func, object, verify, when } from "testdouble"
 import { createHistory, createMemorySource, LocationProvider, NavigateFn } from "@reach/router"
 import { fireEvent, render } from "react-testing-library"
-import { feature, given, scenario, then } from "jest-then"
+import { and, feature, given, scenario, then } from "jest-then"
 import { App } from "./App"
 import { AuthPage } from "./AuthenticationPage"
 import { authCredentials, Gatekeeper } from "./Gatekeeper"
@@ -13,6 +13,14 @@ import { authCredentials, Gatekeeper } from "./Gatekeeper"
 
 const gatekeeper: Gatekeeper = object<Gatekeeper>()
 
+// @todo: not logged in case
+// @todo: add an onSuccess callback for the guy above to handle the redirect
+// @todo: move to custom useGuard(onSuccess, onError) / useAlreadyLoggedInGuard()
+// @todo: Display a message on login fail
+// @todo: Display a message on login success
+// @todo: Timed out redirect on login success
+// @todo: Loading state during authentication
+// @todo: tabs controlled by url
 feature( `Only non logged user can access the page`, () => {
 	scenario( `Already logged in`, () => {
 		given( () => when( gatekeeper.authenticated() ).thenReturn( true ) )
@@ -26,10 +34,6 @@ feature( `Only non logged user can access the page`, () => {
 			verify( navigate( "/" ) )
 		} )
 	} )
-	
-	// @todo: not logged in case
-	// @todo: add an onSuccess callback for the guy above to handle the redirect
-	// @todo: move to custom useGuard(onSuccess, onError) / useAlreadyLoggedInGuard()
 } )
 
 feature( `A user can log in`, () => {
@@ -39,7 +43,17 @@ feature( `A user can log in`, () => {
 	
 	given( () => when( gatekeeper.login( CREDENTIALS ) ).thenResolve() )
 	
-	then( `I should be redirected to home`, async () => {
+	then( `I should see a success message`, async () => {
+		const { login, getByText } = renderAuthPage()
+		
+		login( CREDENTIALS )
+		
+		await tick()
+		
+		expect( () => getByText( /success/i ) ).not.toThrow()
+	} )
+	
+	and( `I should be redirected to home`, async () => {
 		const { login, navigate } = renderAuthPage()
 		
 		login( CREDENTIALS )
@@ -50,13 +64,6 @@ feature( `A user can log in`, () => {
 		
 		verify( navigate( "/", undefined ), { times: 1 } )
 	} )
-	
-	// @todo: Empty form cannot submit
-	// @todo: Login rejected
-	// @todo: Display a message on login fail
-	// @todo: Display a message on login success
-	// @todo: Timed out redirect on login success
-	// @todo: Loading state during authentication
 } )
 
 feature( `A user can sign up`, () => {
@@ -79,10 +86,6 @@ feature( `A user can sign up`, () => {
 		
 		verify( navigate( "/", undefined ), { times: 1 } )
 	} )
-	
-	// @todo: onSucces/onError callback
-	// @todo: tabs controlled by url
-	// @todo: Extract auth method, this is the same thing as login
 } )
 
 
