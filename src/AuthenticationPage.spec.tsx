@@ -85,40 +85,6 @@ feature( `A user can sign up`, () => {
 	// @todo: Extract auth method, this is the same thing as login
 } )
 
-feature( `I can switch between login & signup tabs`, () => {
-	
-	given( () => when( gatekeeper.authenticated() ).thenReturn( false ) )
-	
-	then( `It displays the correct tab`, async () => {
-		const { click, getByText } = renderAuthPage()
-		
-		click( /signup/i )
-		
-		expect( () => getByText( /sign me up/i ) ).not.toThrow()
-		
-		click( /login/i )
-		
-		expect( () => getByText( /log me in/i ) ).not.toThrow()
-	} )
-	
-	then( `Active tab is styled correctly`, async () => {
-		const { click, getByText } = renderAuthPage()
-		
-		click( /login/i )
-		
-		expect( getByText( /login/i ) ).toHaveClass( "bg-white", "text-blue-darker", "border-transparent" )
-		expect( getByText( /signup/i ) ).toHaveClass( "text-grey-darkest", "border-grey-lighter" )
-		
-		click( /signup/i )
-		
-		expect( getByText( /signup/i ) ).toHaveClass( "bg-white", "text-blue-darker", "border-transparent" )
-		expect( getByText( /login/i ) ).toHaveClass( "text-grey-darkest", "border-grey-lighter" )
-	} )
-	
-	
-	// @todo: Switching tabs back and forth
-	// @todo: active tab style
-} )
 
 
 function renderAuthPage( gatekeep: Gatekeeper = gatekeeper )
