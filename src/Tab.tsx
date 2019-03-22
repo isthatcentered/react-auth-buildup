@@ -28,3 +28,20 @@ export function TabButton( { active, onTrigger, style = {}, className = "", chil
 		</button>
 	)
 }
+
+
+export interface TabPanelProps
+{
+	active: boolean
+	children: any
+}
+
+
+export function TabPanel( { active, children }: TabPanelProps )
+{
+	
+	return active ?
+	       children :
+	       null
+	
+}

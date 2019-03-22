@@ -3,7 +3,7 @@ import { HTMLAttributes, useEffect, useState } from "react"
 import { RouteComponentProps } from "@reach/router"
 import { authCredentials, Gatekeeper } from "./Gatekeeper"
 import { AuthenticationForm } from "./AuthenticationForm"
-import { TabButton } from "./Tab"
+import { TabButton, TabPanel } from "./Tab"
 
 
 
@@ -71,31 +71,24 @@ export function AuthPage( { gatekeeper, navigate, location, style = {}, classNam
 							</li>
 						</ul>
 					</nav>
-					
-					{(() => {
-						switch ( tab ) {
-							case "login":
-								return (
-									<AuthenticationForm
-										onAuthenticate={handleLogin}
-										cta="Log me in"
-									/>)
-							
-							case "signup":
-								return (
-									<AuthenticationForm
-										onAuthenticate={handleSignup}
-										cta="Sign me up"
-									/>)
-							
-							default:
-								const ensureAllCasesHandled: never = tab
-						}
-					})()}
+					<div>
+						<TabPanel active={tab === "login"}>
+							<AuthenticationForm
+								onAuthenticate={handleLogin}
+								cta="Log me in"
+							/>
+						</TabPanel>
+						
+						<TabPanel active={tab === "signup"}>
+							<AuthenticationForm
+								onAuthenticate={handleSignup}
+								cta="Sign me up"
+							/>
+						</TabPanel>
+					</div>
 				</div>
 			</section>
-		</div>
-	)
+		</div>)
 }
 
 
