@@ -14,13 +14,9 @@ export interface TabButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
 
 export function TabButton( { active, onTrigger, style = {}, className = "", children, ...props }: TabButtonProps )
 {
-	
-	const activeStyles: string[]   = [ "bg-white", "text-blue-darker", "border-transparent" ],
-	      inactiveStyles: string[] = [ "text-grey-darkest", "border-grey-lighter" ]
-	
 	const styles = active ?
-	               activeStyles :
-	               inactiveStyles
+	               [ "bg-white", "text-blue-darker", "border-transparent" ] :
+	               [ "text-grey-darkest", "border-grey-lighter" ]
 	return (
 		<button
 			{...props}

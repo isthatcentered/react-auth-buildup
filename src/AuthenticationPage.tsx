@@ -60,25 +60,14 @@ export function AuthPage( { gatekeeper, navigate, location, style = {}, classNam
 								>
 									Login
 								</TabButton>
-								<button
-									className={`w-full p-4 border rounded-lr ${tab === "login" ?
-									                                           activeStyles.join( " " ) :
-									                                           inactiveStyles.join( " " )
-										}`}
-									onClick={() => setTab( "login" )}>
-									Login
-								</button>
 							</li>
 							<li className="w-1/2 ">
-								<button
-									className={`w-full p-4 border rounded-tr ${tab === "signup" ?
-									                                           activeStyles.join( " " ) :
-									                                           inactiveStyles.join( " " )
-										}`}
-									onClick={() => setTab( "signup" )}
+								<TabButton
+									active={tab === "signup"}
+									onTrigger={() => setTab( "signup" )}
 								>
 									Signup
-								</button>
+								</TabButton>
 							</li>
 						</ul>
 					</nav>
