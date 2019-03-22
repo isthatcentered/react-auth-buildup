@@ -29,14 +29,6 @@ export function TabButton( { active, onTrigger, style = {}, className = "", chil
 			onClick={onTrigger}
 		>
 			{children}
-			{/*<button*/}
-			{/*className={`w-full p-4 border rounded-lr ${tab === "login" ?*/}
-			{/*activeStyles.join( " " ) :*/}
-			{/*inactiveStyles.join( " " )*/}
-			{/*}`}*/}
-			{/*onClick={() => setTab( "login" )}>*/}
-			{/*Login*/}
-			{/*</button>*/}
 		</button>
 	)
 }

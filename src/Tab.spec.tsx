@@ -8,39 +8,45 @@ import { func, matchers, verify } from "testdouble"
 
 describe( `<TabButton/>`, () => {
 	test( `Calls the onClick prop on click`, () => {
-		const onClick   = func<any>(),
-		      { click } = customRender(
-			      <TabButton
-				      onTrigger={onClick}
-				      active={false}>Click me
-			      </TabButton> )
+		const { click, clickSpy } = renderTabButton()
 		
-		click( /click me/i )
+		click()
 		
-		verify( onClick( matchers.anything() ), { times: 1 } )
+		verify( clickSpy( matchers.anything() ), { times: 1 } )
 	} )
 	
 	test( `Displays the correct styles when active`, () => {
-		const { container } = customRender(
-			<TabButton
-				onTrigger={jest.fn()}
-				active={true}>Click me
-			</TabButton> ),
-		      component     = container.getElementsByTagName( "button" )[ 0 ]
+		const { element } = renderTabButton( { active: true } )
 		
-		
-		expect( component ).toHaveClass( "bg-white", "text-blue-darker", "border-transparent" )
+		expect( element ).toHaveClass( "bg-white", "text-blue-darker", "border-transparent" )
 	} )
 	
 	test( `Displays the correct styles when inactive`, () => {
-		const { container } = customRender(
-			<TabButton
-				onTrigger={jest.fn()}
-				active={false}>Click me
-			</TabButton> ),
-		      component     = container.getElementsByTagName( "button" )[ 0 ]
+		const { element } = renderTabButton( { active: false } )
 		
-		
-		expect( component ).toHaveClass( "text-grey-darkest", "border-grey-lighter" )
+		expect( element ).toHaveClass( "text-grey-darkest", "border-grey-lighter" )
 	} )
 } )
+
+
+function renderTabButton( { active }: { active: boolean } = { active: false } )
+{
+	const clickSpy = func<any>()
+	
+	const wrapper = customRender(
+		<TabButton
+			onTrigger={clickSpy}
+			active={active}>
+			Click me
+		</TabButton> )
+	
+	const element = wrapper.container.getElementsByTagName( "button" )[ 0 ]
+	
+	const click = () => wrapper.click( /click me/i )
+	
+	return {
+		element,
+		clickSpy,
+		click,
+	}
+}
