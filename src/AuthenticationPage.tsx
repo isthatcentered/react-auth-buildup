@@ -17,6 +17,9 @@ export function AuthPage( { gatekeeper, navigate, location, style = {}, classNam
 {
 	const [ tab, setTab ] = useState<"login" | "signup">( "login" )
 	
+	const activeStyles: string[]   = [ "bg-white", "text-blue-darker", "border-transparent" ],
+	      inactiveStyles: string[] = [ "text-grey-darkest", "border-grey-lighter" ]
+	
 	useEffect( () => {
 		if ( gatekeeper.authenticated() )
 			navigate!( "/" )
@@ -51,14 +54,20 @@ export function AuthPage( { gatekeeper, navigate, location, style = {}, classNam
 						<ul className="list-reset -mx-8 -mt-6 flex bg-grey-lightest">
 							<li className="w-1/2">
 								<button
-									className="w-full p-4 bg-white text-blue-darker border border-transparent rounded-lr"
+									className={`w-full p-4 border rounded-lr ${tab === "login" ?
+									                                           activeStyles.join( " " ) :
+									                                           inactiveStyles.join( " " )
+										}`}
 									onClick={() => setTab( "login" )}>
 									Login
 								</button>
 							</li>
 							<li className="w-1/2 ">
 								<button
-									className="w-full p-4 text-grey-darkest border border-grey-lighter rounded-tr"
+									className={`w-full p-4 border rounded-tr ${tab === "signup" ?
+									                                           activeStyles.join( " " ) :
+									                                           inactiveStyles.join( " " )
+										}`}
 									onClick={() => setTab( "signup" )}
 								>
 									Signup
