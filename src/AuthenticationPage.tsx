@@ -3,6 +3,7 @@ import { HTMLAttributes, useEffect, useState } from "react"
 import { RouteComponentProps } from "@reach/router"
 import { authCredentials, Gatekeeper } from "./Gatekeeper"
 import { AuthenticationForm } from "./AuthenticationForm"
+import { TabButton } from "./Tab"
 
 
 
@@ -53,6 +54,12 @@ export function AuthPage( { gatekeeper, navigate, location, style = {}, classNam
 					<nav className="mb-6">
 						<ul className="list-reset -mx-8 -mt-6 flex bg-grey-lightest">
 							<li className="w-1/2">
+								<TabButton
+									active={tab === "login"}
+									onTrigger={() => setTab( "login" )}
+								>
+									Login
+								</TabButton>
 								<button
 									className={`w-full p-4 border rounded-lr ${tab === "login" ?
 									                                           activeStyles.join( " " ) :
