@@ -1,6 +1,6 @@
 import * as React from "react"
 import { HTMLAttributes } from "react"
-import { RouteComponentProps } from "@reach/router"
+import { Link, RouteComponentProps } from "@reach/router"
 
 
 
@@ -20,7 +20,14 @@ export function HomePage( { navigate, location, style = {}, className = "", chil
 			style={{ ...style }}
 			className={`${className} HomePage`}
 		>
-			HomePage
+			<header className="p-4 flex">
+				<Link
+					to="/authenticate"
+					className="ml-auto">
+					Login
+				</Link>
+			</header>
+			<h1>Home</h1>
 		</div>
 	)
 }
