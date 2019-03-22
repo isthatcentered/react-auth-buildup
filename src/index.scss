@@ -1,6 +1,16 @@
 @import "~tailwindcss/dist/tailwind.css";
+@import url('https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600');
 
 
 *, *:before, *:after {
 	box-sizing: border-box;
 }
+
+.font-bold {
+	font-weight: 600;
+}
+
+body {
+	font-family: 'Source Sans Pro', sans-serif;
+}
+

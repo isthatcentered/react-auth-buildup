@@ -12,12 +12,14 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement>
 
 export function Button( { style = {}, className = "", children, ...props }: ButtonProps )
 {
-	
+	const styles = props.disabled ?
+	               [ "bg-grey-light border-transparent" ] :
+	               [ "bg-purple hover:bg-purple-dark text-white border-purple-dark" ]
 	return (
 		<button
 			{...props}
 			style={{ ...style }}
-			className={`${className} Button bg-blue hover:bg-blue-dark text-white font-bold px-4 py-3 rounded focus:outline-none focus:shadow-outline`}
+			className={`${className} Button font-bold px-4 border py-3 rounded focus:outline-none focus:shadow-outline ${styles.join( " " )}`}
 		>
 			{children}
 		</button>
@@ -58,7 +60,7 @@ export function Label( { style = {}, className = "", children, ...props }: Label
 		<label
 			{...props}
 			style={{ ...style }}
-			className={`${className} Label block text-grey-darker text-sm font-bold`}
+			className={`${className} Label block text-grey-darker font-bold`}
 		>
 			{children}
 		</label>
@@ -83,5 +85,60 @@ export function LabelText( { style = {}, className = "", children, ...props }: L
 		>
 			{children}
 		</span>
+	)
+}
+
+
+export type alertKind = "success" | "error"
+
+export interface AlertProps extends HTMLAttributes<HTMLDivElement>
+{
+	type: alertKind
+	children: any
+}
+
+
+export function Alert( { type, style = {}, className = "", children, ...props }: AlertProps )
+{
+	const styles: { [p in alertKind]: string } = {
+		      error:   "red",
+		      success: "green",
+	      },
+	      color: string                        = styles[ type ]
+	
+	
+	return (
+		<div
+			{...props}
+			style={{ ...style }}
+			className={`${className} Alert border p-4 rounded relative bg-${color}-lightest border-${color}-lighter text-${color}-dark`}
+			role="alert"
+		>
+			{children}
+		</div>
+	)
+}
+
+
+export interface LoaderProps extends HTMLAttributes<HTMLDivElement>
+{
+	width: number
+}
+
+
+export function Loader( { width, style = {}, className = "", children, ...props }: LoaderProps )
+{
+	
+	return (
+		<div
+			{...props}
+			style={{ ...style, height: 4 }}
+			className={`${className} Loader w-full bg-purple-lightest`}
+		>
+			<div
+				className="h-full w-1/2 bg-purple"
+				style={{ width }}
+			/>
+		</div>
 	)
 }
