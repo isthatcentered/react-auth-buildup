@@ -21,7 +21,7 @@ export function TabButton( { active, onTrigger, style = {}, className = "", chil
 		<button
 			{...props}
 			style={{ ...style }}
-			className={`${className} TabButton ${styles.join( " " )}`}
+			className={`${className} TabButton w-full p-4 border rounded-tr ${styles.join( " " )}`}
 			onClick={onTrigger}
 		>
 			{children}
