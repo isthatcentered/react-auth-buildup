@@ -24,12 +24,4 @@ feature( `User can switch between login & signup tabs`, () => {
 	} )
 } )
 
-test( `It can display a message`, async () => {
-	const { getByText } = customRender( <LoginOrSignup
-		onLogin={jest.fn()}
-		onSignup={jest.fn()}
-		message={{ type: "success", body: "Success" }}
-	/> )
-	
-	expect( () => getByText( /success/i ) ).not.toThrow()
-} )
+

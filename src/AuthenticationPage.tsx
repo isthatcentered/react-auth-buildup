@@ -16,8 +16,6 @@ export interface AuthPageProps extends HTMLAttributes<HTMLDivElement>, RouteComp
 
 export function AuthPage( { gatekeeper, navigate, location, style = {}, className = "", children, ...props }: AuthPageProps )
 {
-	const [ message, setMessage ] = useState<undefined | { type: alertkind, body: any }>( undefined )
-	
 	useEffect( () => {
 		if ( gatekeeper.authenticated() )
 			navigate!( "/" )
@@ -26,15 +24,14 @@ export function AuthPage( { gatekeeper, navigate, location, style = {}, classNam
 	
 	function handleLogin( credentitals: authCredentials )
 	{
-		gatekeeper.login( credentitals )
-			.then( () => setMessage( { type: "success", body: "Success" } ) )
+		return gatekeeper.login( credentitals )
 			.then( () => navigate!( "/" ) )
 	}
 	
 	
 	function handleSignup( credentitals: authCredentials )
 	{
-		gatekeeper.signup( credentitals )
+		return gatekeeper.signup( credentitals )
 			.then( () => navigate!( "/" ) )
 	}
 	
@@ -46,7 +43,6 @@ export function AuthPage( { gatekeeper, navigate, location, style = {}, classNam
 			className={`${className} AuthPage flex items-center justify-center min-h-screen`}
 		>
 			<LoginOrSignup
-				message={message}
 				onLogin={handleLogin}
 				onSignup={handleSignup}
 			/>

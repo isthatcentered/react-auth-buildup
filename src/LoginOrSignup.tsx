@@ -33,17 +33,28 @@ export function Alert( { type, style = {}, className = "", children, ...props }:
 
 export interface LoginOrSignupProps extends HTMLAttributes<HTMLDivElement>
 {
-	onLogin( credentials: authCredentials ): any
+	onLogin( credentials: authCredentials ): Promise<void>
 	
-	onSignup( credentials: authCredentials ): any
-	
-	message: undefined | { type: alertkind, body: string }
+	onSignup( credentials: authCredentials ): Promise<void>
 }
 
 
-export function LoginOrSignup( { message, onLogin, onSignup, style = {}, className = "", children, ...props }: LoginOrSignupProps )
+export function LoginOrSignup( { onLogin, onSignup, style = {}, className = "", children, ...props }: LoginOrSignupProps )
 {
-	const [ tab, setTab ] = useState<"login" | "signup">( "login" )
+	const [ tab, setTab ]         = useState<"login" | "signup">( "login" ),
+	      [ message, setMessage ] = useState<string>()
+	
+	
+	function handleAction( type: "login" | "signup", credentials: authCredentials )
+	{
+		if ( type === "login" )
+			onLogin( credentials )
+				.then( () => setMessage( "Success" ) )
+		
+		if ( type === "signup" )
+			onSignup( credentials )
+	}
+	
 	
 	return (
 		<div
@@ -55,8 +66,8 @@ export function LoginOrSignup( { message, onLogin, onSignup, style = {}, classNa
 				<div className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 overflow-hidden">
 					
 					{message && (
-						<Alert type={message.type}>
-							{message.body}
+						<Alert type={"success"}>
+							{message}
 						</Alert>)}
 					
 					
@@ -83,14 +94,14 @@ export function LoginOrSignup( { message, onLogin, onSignup, style = {}, classNa
 					<div>
 						<TabPanel active={tab === "login"}>
 							<AuthenticationForm
-								onAuthenticate={onLogin}
+								onAuthenticate={creds => handleAction( "login", creds )}
 								cta="Log me in"
 							/>
 						</TabPanel>
 						
 						<TabPanel active={tab === "signup"}>
 							<AuthenticationForm
-								onAuthenticate={onSignup}
+								onAuthenticate={creds => handleAction( "signup", creds )}
 								cta="Sign me up"
 							/>
 						</TabPanel>
