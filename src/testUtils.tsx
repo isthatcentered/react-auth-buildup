@@ -1,7 +1,8 @@
 import { fireEvent, render } from "react-testing-library"
+import * as React from "react"
 import { ReactElement } from "react"
-import { createHistory, createMemorySource, NavigateFn } from "@reach/router"
-import { func } from "testdouble"
+import { createHistory, createMemorySource, LocationProvider } from "@reach/router"
+import { App } from "./App"
 
 
 
@@ -60,14 +61,17 @@ export function customRender( component: ReactElement<any> )
 }
 
 
-function routerRender( component: ReactElement<any> )
+export function appRender( route: string )
 {
 	const history = {
-		...createHistory( createMemorySource( "/authenticate" ) ),
-		navigate: func<NavigateFn>(),
+		...createHistory( createMemorySource( route ) ),
 	}
 	
-	const wrapper = customRender( component )
+	const wrapper = customRender(
+		<LocationProvider history={history}>
+			<App/>
+		</LocationProvider>,
+	)
 	
 	return {
 		...wrapper,

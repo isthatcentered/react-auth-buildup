@@ -48,7 +48,7 @@ type processing = {
 }
 
 type actions = {
-	onAuthenticate( credentials: authenticationCredentials ): any
+	onAuthenticate( type: "login" | "signup", credentials: authenticationCredentials ): any
 }
 export type AuthenticationPageViewProps = immutableProps & actions & (unprocessed | processed | processing)
 
@@ -84,7 +84,7 @@ export function LoginOrSignup( { onAuthenticate, loading, alert, action, ...prop
 				</Alert>)}
 			
 			<AuthenticationForm
-				onAuthenticate={onAuthenticate}
+				onAuthenticate={credentials => onAuthenticate( action, credentials )}
 				processing={loading || (alert && alert.type === "success") || false}
 				cta={action === "login" ?
 				     "Log me in" :

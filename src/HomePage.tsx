@@ -22,7 +22,7 @@ export function HomePage( { navigate, location, style = {}, className = "", chil
 		>
 			<header className="p-4 flex">
 				<Link
-					to="/authenticate"
+					to="/auth"
 					className="ml-auto">
 					Login
 				</Link>
