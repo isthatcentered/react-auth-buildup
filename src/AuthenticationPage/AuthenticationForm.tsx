@@ -61,7 +61,7 @@ export function AuthenticationForm( { onAuthenticate, cta, processing, style = {
 				
 				<Button type="submit"
 				        disabled={processing}>
-					submit
+					{cta}
 				</Button>
 			</form>
 		</div>

@@ -22,7 +22,7 @@ export function App( { style = {}, className = "", children, ...props }: AppProp
 			className={`${className} App`}
 		>
 			<Router>
-				{/*<HomePage path="/"/>*/}
+				<HomePage path="/"/>
 				<AuthenticatePage path="/auth"/>
 			</Router>
 		</div>
