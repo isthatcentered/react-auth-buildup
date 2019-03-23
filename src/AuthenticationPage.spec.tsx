@@ -1,12 +1,9 @@
 import * as React from "react"
-import { HTMLAttributes, useContext, useState } from "react"
 import { feature, given, scenario } from "jest-then";
 import { appRender, tick } from "./testUtils"
-import { RouteComponentProps } from "@reach/router"
 import { authenticationCredentials } from "./AuthenticationPage/AuthenticationForm"
-import { LoginOrSignup, LoginOrSignupProps } from "./AuthenticationPage/LogInOrSignup"
 import { object, when } from "testdouble"
-import { ContainerContext } from "./ServicesContainer"
+import { Gatekeeper } from "./AuthenticationPage"
 
 
 
@@ -20,62 +17,6 @@ import { ContainerContext } from "./ServicesContainer"
 // jest.clearAllMocks()
 
 
-export interface Gatekeeper
-{
-	login( credentials: authenticationCredentials ): Promise<void>
-}
-
-
-interface AuthenticatePageProps extends HTMLAttributes <HTMLDivElement>, RouteComponentProps
-{
-
-}
-
-
-export function AuthenticatePage( { location, navigate, style = {}, className = "", children, ...props }: AuthenticatePageProps )
-{
-	const { gatekeeper }      = useContext( ContainerContext ),
-	      [ state, setState ] = useState<LoginOrSignupProps>( {
-		      loading:        false,
-		      alert:          undefined,
-		      action:         "login",
-		      onAuthenticate: () => null,
-	      } )
-	
-	
-	function handleAuthenticate( type: "login" | "signup", credentials: authenticationCredentials )
-	{
-		setState( {
-			loading:        true,
-			alert:          undefined,
-			action:         "login",
-			onAuthenticate: () => null,
-		} )
-		
-		gatekeeper.login( credentials )
-			.then( () => {
-				setState( {
-					loading:        false,
-					alert:          { type: "success", message: "Success, redirecting in ..." },
-					action:         "login",
-					onAuthenticate: () => null,
-				} )
-			} )
-	}
-	
-	
-	return (
-		<div
-			{...props}
-			style={{ ...style }}
-			className={`${className} AuthenticatePage`}
-		>
-			<LoginOrSignup{...state} onAuthenticate={handleAuthenticate}/>
-		</div>
-	)
-}
-
-
 const fakeGatekeeper = object<Gatekeeper>()
 feature( `User can log in`, () => {
 	
@@ -87,14 +28,16 @@ feature( `User can log in`, () => {
 		test( `I can log in`, async () => {
 			const { login, getByText } = renderAuthPage()
 			
-			// when I log in
 			login( credentials )
 			
 			await tick()
 			
-			// then I should see a success message
 			getByText( /Success, redirecting/i )
 		} )
+		
+		// form submit should be disabled
+		
+		// message should be updated until redirect
 		
 		// sends success message
 		

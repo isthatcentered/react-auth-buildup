@@ -1,4 +1,4 @@
-import { Gatekeeper } from "./AuthenticationPage.spec"
+import { Gatekeeper } from "./AuthenticationPage"
 import React from "react"
 import { object } from "testdouble"
 

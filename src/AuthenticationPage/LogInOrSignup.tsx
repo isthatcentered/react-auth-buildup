@@ -31,9 +31,6 @@ export function TabButton( { active, style = {}, className = "", children, ...pr
 }
 
 
-type immutableProps = {
-	action: "login" | "signup",
-}
 type unprocessed = {
 	loading: false
 	alert: undefined
@@ -50,7 +47,12 @@ type processing = {
 type actions = {
 	onAuthenticate( type: "login" | "signup", credentials: authenticationCredentials ): any
 }
-export type LoginOrSignupProps = immutableProps & actions & (unprocessed | processed | processing)
+
+export type LogInOrSignupStateProps = (unprocessed | processed | processing) & {
+	action: "login" | "signup",
+}
+
+export type LoginOrSignupProps = actions & LogInOrSignupStateProps
 
 
 export function LoginOrSignup( { onAuthenticate, loading, alert, action, ...props }: LoginOrSignupProps )

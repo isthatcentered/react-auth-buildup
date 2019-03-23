@@ -2,7 +2,7 @@ import * as React from "react"
 import { HTMLAttributes } from "react"
 import { Router } from "@reach/router"
 import { HomePage } from "./HomePage"
-import { AuthenticatePage } from "./AuthenticationPage.spec"
+import { AuthenticatePage } from "./AuthenticationPage"
 
 
 
