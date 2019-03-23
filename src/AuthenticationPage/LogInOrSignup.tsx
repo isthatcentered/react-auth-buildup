@@ -53,49 +53,42 @@ type actions = {
 export type AuthenticationPageViewProps = immutableProps & actions & (unprocessed | processed | processing)
 
 
-export function AuthenticationPageView( { onAuthenticate, loading, alert, action, style = {}, className = "", children, ...props }: AuthenticationPageViewProps & HTMLAttributes<HTMLDivElement> )
+export function LoginOrSignup( { onAuthenticate, loading, alert, action, ...props }: AuthenticationPageViewProps )
 {
 	
 	return (
-		<div
-			{...props}
-			style={{ ...style }}
-			className={`${className} AuthenticationPageView min-h-screen flex items-center justify-center`}
-		>
+		<div className="bg-white rounded shadow-md overflow-hidden"
+		     style={{ width: 440, maxWidth: "100%" }}>
 			
-			<div className="bg-white rounded shadow-md overflow-hidden"
-			     style={{ width: 440, maxWidth: "100%" }}>
-				
-				{loading && <Loader msDuration={8000}/>}
-				
-				<nav>
-					<ul className="list-reset flex justify-center text-center">
-						<li className="flex-grow">
-							<TabButton active={action === "login"}>
-								Login
-							</TabButton>
-						</li>
-						<li className="flex-grow">
-							<TabButton active={action === "signup"}>
-								Signup
-							</TabButton>
-						</li>
-					</ul>
-				</nav>
-				
-				{alert && (
-					<Alert type={alert.type}
-					       className="mx-8 mt-8 -mb-2">
-						{alert.message}
-					</Alert>)}
-				
-				<AuthenticationForm
-					onAuthenticate={onAuthenticate}
-					processing={loading || (alert && alert.type === "success") || false}
-					cta={action === "login" ?
-					     "Log me in" :
-					     "Sign me up"}
-				/>
-			</div>
+			{loading && <Loader msDuration={8000}/>}
+			
+			<nav>
+				<ul className="list-reset flex justify-center text-center">
+					<li className="flex-grow">
+						<TabButton active={action === "login"}>
+							Login
+						</TabButton>
+					</li>
+					<li className="flex-grow">
+						<TabButton active={action === "signup"}>
+							Signup
+						</TabButton>
+					</li>
+				</ul>
+			</nav>
+			
+			{alert && (
+				<Alert type={alert.type}
+				       className="mx-8 mt-8 -mb-2">
+					{alert.message}
+				</Alert>)}
+			
+			<AuthenticationForm
+				onAuthenticate={onAuthenticate}
+				processing={loading || (alert && alert.type === "success") || false}
+				cta={action === "login" ?
+				     "Log me in" :
+				     "Sign me up"}
+			/>
 		</div>)
 }

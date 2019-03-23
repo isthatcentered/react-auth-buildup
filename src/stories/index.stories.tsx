@@ -1,37 +1,34 @@
-import React from "react";
+import React, { HTMLAttributes } from "react";
 
 import { storiesOf } from "@storybook/react";
 import { Alert } from "../Random"
 
 import "../index.scss"
-import { AuthenticationPageView, AuthenticationPageViewProps } from "../AuthenticationPage/View"
+import { AuthenticationPageViewProps, LoginOrSignup } from "../AuthenticationPage/LogInOrSignup"
 //@ts-ignore
 import { action } from "@storybook/addon-actions";
 //@ts-ignore
 // import { linkTo } from "@storybook/addon-links";
 
 
-// Next
-// is
-// testing
-// validate( creds ).then().catch
-// or
-// try catch
-// 	?
-// 	form
-// 	is
-// disabled
-// when
-// loading
-
+function Display( { children }: HTMLAttributes )
+{
+	return <div className="min-h-screen flex items-center justify-center">{children}</div>
+}
 
 
 storiesOf( "Alert", module )
-	.add( "Success", () => (<Alert type="success">You did it! 🥳</Alert>) )
+	.add( "Success", () => (
+		<Display>
+			<Alert type="success"> You did it! 🥳</Alert>
+		</Display>) )
 	
-	.add( "Error", () => (<Alert type="error">You did it 🥺</Alert>) )
+	.add( "Error", () => (
+		<Display>
+			<Alert type="error"> You did it 🥺</Alert>
+		</Display>) )
 
-storiesOf( "AuthenticationPage", module )
+storiesOf( "LoginOrSignup", module )
 	.add( "Logging in", () =>
 		makeAuthPageView( { action: "login" } ) )
 	
@@ -77,5 +74,5 @@ function makeAuthPageView( props: Partial<AuthenticationPageViewProps> = {} )
 		...props as any, // we enforced states, ts doesn't like mixing in Partial<props>
 	}
 	
-	return <AuthenticationPageView {...safeProps}  />
+	return <Display><LoginOrSignup {...safeProps}  /></Display>
 }
