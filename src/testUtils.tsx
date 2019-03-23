@@ -3,6 +3,8 @@ import * as React from "react"
 import { ReactElement } from "react"
 import { createHistory, createMemorySource, LocationProvider } from "@reach/router"
 import { App } from "./App"
+import { ContainerContext, ServicesContainer } from "./ServicesContainer"
+import { object } from "testdouble"
 
 
 
@@ -61,17 +63,18 @@ export function customRender( component: ReactElement<any> )
 }
 
 
-export function appRender( route: string )
+export function appRender( route: string, services: ServicesContainer = object<ServicesContainer>() )
 {
 	const history = {
 		...createHistory( createMemorySource( route ) ),
 	}
 	
 	const wrapper = customRender(
-		<LocationProvider history={history}>
-			<App/>
-		</LocationProvider>,
-	)
+		<ContainerContext.Provider value={services}>
+			<LocationProvider history={history}>
+				<App/>
+			</LocationProvider>
+		</ContainerContext.Provider> )
 	
 	return {
 		...wrapper,

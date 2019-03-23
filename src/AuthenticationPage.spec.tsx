@@ -1,11 +1,12 @@
 import * as React from "react"
-import { HTMLAttributes } from "react"
+import { HTMLAttributes, useContext } from "react"
 import { feature, given, scenario } from "jest-then";
 import { appRender } from "./testUtils"
 import { RouteComponentProps } from "@reach/router"
 import { authenticationCredentials } from "./AuthenticationPage/AuthenticationForm"
 import { LoginOrSignup } from "./AuthenticationPage/LogInOrSignup"
 import { object } from "testdouble"
+import { ContainerContext } from "./ServicesContainer"
 
 
 
@@ -18,7 +19,9 @@ import { object } from "testdouble"
 // expect( button ).lastWith( "" )
 // jest.clearAllMocks()
 
-interface AuthenticatePageProps extends HTMLAttributes<HTMLDivElement>, RouteComponentProps
+
+interface AuthenticatePageProps
+	extends HTMLAttributes <HTMLDivElement>, RouteComponentProps
 {
 
 }
@@ -26,10 +29,12 @@ interface AuthenticatePageProps extends HTMLAttributes<HTMLDivElement>, RouteCom
 
 export function AuthenticatePage( { location, navigate, style = {}, className = "", children, ...props }: AuthenticatePageProps )
 {
+	const { gatekeeper } = useContext( ContainerContext )
+	
 	
 	function handleAuthenticate( type: "login" | "signup", credentials: authenticationCredentials )
 	{
-		// gatekeeper.login( credentials )
+		gatekeeper.login( credentials )
 	}
 	
 	
