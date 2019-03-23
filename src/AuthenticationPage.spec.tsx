@@ -1,11 +1,11 @@
 import * as React from "react"
-import { HTMLAttributes, useContext } from "react"
+import { HTMLAttributes, useContext, useState } from "react"
 import { feature, given, scenario } from "jest-then";
-import { appRender } from "./testUtils"
+import { appRender, tick } from "./testUtils"
 import { RouteComponentProps } from "@reach/router"
 import { authenticationCredentials } from "./AuthenticationPage/AuthenticationForm"
-import { LoginOrSignup } from "./AuthenticationPage/LogInOrSignup"
-import { object } from "testdouble"
+import { LoginOrSignup, LoginOrSignupProps } from "./AuthenticationPage/LogInOrSignup"
+import { object, when } from "testdouble"
 import { ContainerContext } from "./ServicesContainer"
 
 
@@ -20,8 +20,13 @@ import { ContainerContext } from "./ServicesContainer"
 // jest.clearAllMocks()
 
 
-interface AuthenticatePageProps
-	extends HTMLAttributes <HTMLDivElement>, RouteComponentProps
+export interface Gatekeeper
+{
+	login( credentials: authenticationCredentials ): Promise<void>
+}
+
+
+interface AuthenticatePageProps extends HTMLAttributes <HTMLDivElement>, RouteComponentProps
 {
 
 }
@@ -29,12 +34,33 @@ interface AuthenticatePageProps
 
 export function AuthenticatePage( { location, navigate, style = {}, className = "", children, ...props }: AuthenticatePageProps )
 {
-	const { gatekeeper } = useContext( ContainerContext )
+	const { gatekeeper }      = useContext( ContainerContext ),
+	      [ state, setState ] = useState<LoginOrSignupProps>( {
+		      loading:        false,
+		      alert:          undefined,
+		      action:         "login",
+		      onAuthenticate: () => null,
+	      } )
 	
 	
 	function handleAuthenticate( type: "login" | "signup", credentials: authenticationCredentials )
 	{
+		setState( {
+			loading:        true,
+			alert:          undefined,
+			action:         "login",
+			onAuthenticate: () => null,
+		} )
+		
 		gatekeeper.login( credentials )
+			.then( () => {
+				setState( {
+					loading:        false,
+					alert:          { type: "success", message: "Success, redirecting in ..." },
+					action:         "login",
+					onAuthenticate: () => null,
+				} )
+			} )
 	}
 	
 	
@@ -44,42 +70,30 @@ export function AuthenticatePage( { location, navigate, style = {}, className = 
 			style={{ ...style }}
 			className={`${className} AuthenticatePage`}
 		>
-			<LoginOrSignup
-				onAuthenticate={handleAuthenticate}
-				alert={undefined}
-				action="login"
-				loading={false}
-			/>
+			<LoginOrSignup{...state} onAuthenticate={handleAuthenticate}/>
 		</div>
 	)
 }
 
 
-export interface Gatekeeper
-{
-	login( credentials: authenticationCredentials ): Promise<void>
-}
-
+const fakeGatekeeper = object<Gatekeeper>()
 feature( `User can log in`, () => {
-	const gatekeeper = object<Gatekeeper>()
 	
 	scenario( `Success`, () => {
-		given( () => {
+		const credentials: authenticationCredentials = { email: "user@email.com", password: "$password$" }
 		
-		} )
+		given( () => when( fakeGatekeeper.login( credentials ) ).thenResolve() )
 		
-		
-		test( `I can log in`, () => {
-			const { login }                              = renderAuthPage(),
-			      credentials: authenticationCredentials = { email: "user@email.com", password: "$password$" }
-			
-			login( credentials )
-			
-			// given my credentials are authorized
+		test( `I can log in`, async () => {
+			const { login, getByText } = renderAuthPage()
 			
 			// when I log in
+			login( credentials )
+			
+			await tick()
 			
 			// then I should see a success message
+			getByText( /Success, redirecting/i )
 		} )
 		
 		// sends success message
@@ -91,7 +105,7 @@ feature( `User can log in`, () => {
 
 function renderAuthPage()
 {
-	const wrapper = appRender( "/auth" )
+	const wrapper = appRender( "/auth", { gatekeeper: fakeGatekeeper } )
 	
 	
 	function login( credentials: authenticationCredentials )

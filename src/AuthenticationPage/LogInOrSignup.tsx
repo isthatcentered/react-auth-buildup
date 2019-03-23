@@ -50,10 +50,10 @@ type processing = {
 type actions = {
 	onAuthenticate( type: "login" | "signup", credentials: authenticationCredentials ): any
 }
-export type AuthenticationPageViewProps = immutableProps & actions & (unprocessed | processed | processing)
+export type LoginOrSignupProps = immutableProps & actions & (unprocessed | processed | processing)
 
 
-export function LoginOrSignup( { onAuthenticate, loading, alert, action, ...props }: AuthenticationPageViewProps )
+export function LoginOrSignup( { onAuthenticate, loading, alert, action, ...props }: LoginOrSignupProps )
 {
 	
 	return (

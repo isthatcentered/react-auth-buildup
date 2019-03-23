@@ -4,7 +4,7 @@ import { storiesOf } from "@storybook/react";
 import { Alert } from "../Random"
 
 import "../index.scss"
-import { AuthenticationPageViewProps, LoginOrSignup } from "../AuthenticationPage/LogInOrSignup"
+import { LoginOrSignupProps, LoginOrSignup } from "../AuthenticationPage/LogInOrSignup"
 //@ts-ignore
 import { action } from "@storybook/addon-actions";
 //@ts-ignore
@@ -64,9 +64,9 @@ storiesOf( "LoginOrSignup", module )
 		} ) )
 
 
-function makeAuthPageView( props: Partial<AuthenticationPageViewProps> = {} )
+function makeAuthPageView( props: Partial<LoginOrSignupProps> = {} )
 {
-	const safeProps: AuthenticationPageViewProps = {
+	const safeProps: LoginOrSignupProps = {
 		action:         "login",
 		loading:        false,
 		alert:          undefined,
