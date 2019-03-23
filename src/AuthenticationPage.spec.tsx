@@ -1,9 +1,10 @@
 import * as React from "react"
-import { feature, given, scenario } from "jest-then";
+import { feature, given, scenario, xand } from "jest-then";
 import { appRender, tick } from "./testUtils"
 import { authenticationCredentials } from "./AuthenticationPage/AuthenticationForm"
 import { object, when } from "testdouble"
 import { Gatekeeper } from "./AuthenticationPage"
+import { wait } from "react-testing-library";
 
 
 
@@ -21,6 +22,8 @@ const fakeGatekeeper = object<Gatekeeper>()
 feature( `User can log in`, () => {
 	
 	scenario( `Success`, () => {
+		jest.useFakeTimers()
+		
 		const credentials: authenticationCredentials = { email: "user@email.com", password: "$password$" }
 		
 		given( () => when( fakeGatekeeper.login( credentials ) ).thenResolve() )
@@ -32,9 +35,51 @@ feature( `User can log in`, () => {
 			
 			await tick()
 			
-			getByText( /Success, redirecting/i )
+			getByText( /Success, redirecting in/i )
+			
+			jest.advanceTimersByTime( 1000 )
+			
+			getByText( /Success, redirecting in 2/i )
+			
+			jest.advanceTimersByTime( 1000 )
+			
+			getByText( /Success, redirecting in 1/i )
 		} )
 		
+		test( `Success message decreases the number of seconds left before redirecting`, async () => {
+			const { login, getByText } = renderAuthPage()
+			
+			login( credentials )
+			
+			await tick()
+			
+			getByText( /redirecting in 3/i )
+			
+			jest.advanceTimersByTime( 1000 )
+			
+			getByText( /redirecting in 2/i )
+			
+			jest.advanceTimersByTime( 1000 )
+			
+			getByText( /redirecting in 1/i )
+		} )
+		
+		
+		xand( `User is redirected to home after a short delay`, async () => {
+			const { login, getByText, history, debug } = renderAuthPage()
+			
+			login( credentials )
+			
+			await tick()
+			
+			// jest.advanceTimersByTime( 4000 )
+			
+			await wait( () => {
+				debug()
+				// console.log( "*****LOCATION::::", history )
+				expect( history.location.pathname ).toBe( "/" )
+			} )
+		} )
 		// form submit should be disabled
 		
 		// message should be updated until redirect

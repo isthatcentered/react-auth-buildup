@@ -41,9 +41,28 @@ export function AuthenticatePage( { location, navigate, style = {}, className = 
 			.then( () => {
 				setState( {
 					loading: false,
-					alert:   { type: "success", message: "Success, redirecting in ..." },
+					alert:   { type: "success", message: "Success, redirecting in 3" },
 					action:  "login",
 				} )
+				
+				
+				let count = 3
+				
+				const messageInterval = setInterval( () => {
+					count = count - 1
+					
+					setState( {
+						loading: false,
+						alert:   { type: "success", message: `Success, redirecting in ${count}` },
+						action:  "login",
+					} )
+				}, 1000 )
+				
+				setTimeout( () => {
+					console.log( "CALLED" )
+					clearInterval( messageInterval )
+					navigate!( "/" )
+				}, 3000 )
 			} )
 	}
 	
@@ -52,7 +71,7 @@ export function AuthenticatePage( { location, navigate, style = {}, className = 
 		<div
 			{...props}
 			style={{ ...style }}
-			className={`${className} AuthenticatePage`}
+			className={`${className} AuthenticatePage flex items-center justify-center min-h-screen`}
 		>
 			<LoginOrSignup{...state} onAuthenticate={handleAuthenticate}/>
 		</div>

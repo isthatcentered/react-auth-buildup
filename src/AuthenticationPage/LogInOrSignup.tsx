@@ -5,32 +5,6 @@ import { authenticationCredentials, AuthenticationForm } from "./AuthenticationF
 
 
 
-export interface TabButtonProps extends HTMLAttributes<HTMLDivElement>
-{
-	active: boolean
-}
-
-
-export function TabButton( { active, style = {}, className = "", children, ...props }: TabButtonProps )
-{
-	
-	const styles = active ?
-	               [ "font-bold" ] :
-	               [ "border", "border-grey-lighter", "bg-grey-lightest" ]
-	return (
-		<div
-			{...props}
-			style={{ ...style }}
-			className={`${className} TabButton`}
-		>
-			<button className={`p-4 w-full text-grey-darker ${styles.join( " " )}`}>
-				{children}
-			</button>
-		</div>
-	)
-}
-
-
 type unprocessed = {
 	loading: false
 	alert: undefined
@@ -93,4 +67,30 @@ export function LoginOrSignup( { onAuthenticate, loading, alert, action, ...prop
 				     "Sign me up"}
 			/>
 		</div>)
+}
+
+
+export interface TabButtonProps extends HTMLAttributes<HTMLDivElement>
+{
+	active: boolean
+}
+
+
+export function TabButton( { active, style = {}, className = "", children, ...props }: TabButtonProps )
+{
+	
+	const styles = active ?
+	               [ "font-bold" ] :
+	               [ "border", "border-grey-lighter", "bg-grey-lightest" ]
+	return (
+		<div
+			{...props}
+			style={{ ...style }}
+			className={`${className} TabButton`}
+		>
+			<button className={`p-4 w-full text-grey-darker ${styles.join( " " )}`}>
+				{children}
+			</button>
+		</div>
+	)
 }
