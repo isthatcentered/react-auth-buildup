@@ -1,6 +1,6 @@
 import * as React from "react"
-import { feature, given, scenario, xand, and } from "jest-then";
-import { appRender, tick } from "./testUtils"
+import { and, feature, given, scenario, then, when as When } from "jest-then";
+import { appRender } from "./testUtils"
 import { authenticationCredentials } from "./AuthenticationPage/AuthenticationForm"
 import { object, verify, when } from "testdouble"
 import { Gatekeeper } from "./AuthenticationPage"
@@ -18,76 +18,55 @@ import { Gatekeeper } from "./AuthenticationPage"
 
 
 const fakeGatekeeper = object<Gatekeeper>()
+let page: authPageRender
 feature( `User can log in`, () => {
-	
 	scenario( `Success`, () => {
-		jest.useFakeTimers()
-		
 		const credentials: authenticationCredentials = { email: "user@email.com", password: "$password$" }
+		
+		given( () => jest.useFakeTimers() )
 		
 		given( () => when( fakeGatekeeper.login( credentials ) ).thenResolve() )
 		
-		test( `I can log in`, async () => {
-			const { login, getByText } = renderAuthPage()
-			
-			login( credentials )
-			
-			await tick()
-			
-			getByText( /Success, redirecting in/i )
-			
-			jest.advanceTimersByTime( 1000 )
-			
-			getByText( /Success, redirecting in 2/i )
-			
-			jest.advanceTimersByTime( 1000 )
-			
-			getByText( /Success, redirecting in 1/i )
+		given( () => page = renderAuthPage() )
+		
+		When( () => page.login( credentials ) )
+		
+		then( `A success message is displayed`, () => {
+			page.getByText( /Success, redirecting in/i )
 		} )
 		
-		test( `Success message decreases the number of seconds left before redirecting`, async () => {
-			const { login, getByText } = renderAuthPage()
-			
-			login( credentials )
-			
-			await tick()
-			
-			getByText( /redirecting in 3/i )
+		and( `Success message counts down the number of seconds left before redirecting`, () => {
+			page.getByText( /redirecting in 3/i )
 			
 			jest.advanceTimersByTime( 1000 )
 			
-			getByText( /redirecting in 2/i )
+			page.getByText( /redirecting in 2/i )
 			
 			jest.advanceTimersByTime( 1000 )
 			
-			getByText( /redirecting in 1/i )
+			page.getByText( /redirecting in 1/i )
 		} )
 		
-		
-		and( `User is redirected to home after a short delay`, async () => {
-			const { login, getByText, navigate, debug } = renderAuthPage()
-			
-			login( credentials )
-			
-			await tick()
-			
+		and( `User is redirected to home after a short delay`, () => {
 			jest.advanceTimersByTime( 3000 )
 			
-			verify( navigate( "/", undefined ) )
+			verify( page.navigate( "/", undefined ) )
 		} )
 		
+		// form submit disabled check belongs to component
+		// message countdown is a separate thing
 		// form submit should be disabled
-		
-		// message should be updated until redirect
-		
-		// sends success message
-		
-		// redirects after x
 	} )
 } )
 
 
-function renderAuthPage()
+interface authPageRender extends Pick<appRender, "getByText" | "navigate">
+{
+	login( credentials: authenticationCredentials ): void
+}
+
+
+function renderAuthPage(): authPageRender
 {
 	const wrapper = appRender( "/auth", { gatekeeper: fakeGatekeeper } )
 	
