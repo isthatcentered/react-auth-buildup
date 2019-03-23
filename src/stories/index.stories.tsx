@@ -11,18 +11,6 @@ import "../index.scss"
 // import { linkTo } from "@storybook/addon-links";
 
 
-
-/*
-storiesOf( "Welcome", module ).add( "to Storybook", () => <Welcome showApp={linkTo( "Button" )}/> );
-
-storiesOf( "Button", module )
-	.add( "with text", () =>
-	<Button onClick={action( "clicked" )}>Hello Button</Button> )
-	.add( "with some emoji", () => (
-		<Button onClick={action( "clicked" )}/>
-	) );
-*/
-
 export interface TabButtonProps extends HTMLAttributes<HTMLDivElement>
 {
 	active: boolean
@@ -49,16 +37,29 @@ export function TabButton( { active, style = {}, className = "", children, ...pr
 }
 
 
-
-export interface AuthenticationPageViewProps extends HTMLAttributes<HTMLDivElement>
-{
-	action: "login" | "signup"
-	alert: { type: alertKind, message: string } | undefined
-	loading: boolean
+type immutableProps = {
+	action: "login" | "signup",
 }
 
+type unprocessed = {
+	loading: false
+	alert: undefined
+}
 
-export function AuthenticationPageView( { loading, alert, action, style = {}, className = "", children, ...props }: AuthenticationPageViewProps )
+type processed = {
+	loading: false
+	alert: { type: alertKind, message: string } // You always get a feedback, success or error
+}
+
+type processing = {
+	loading: true,
+	alert: undefined | { type: alertKind, message: string } // might be re-submitting after a form erro
+}
+
+export type AuthenticationPageViewProps = immutableProps & (unprocessed | processed | processing)
+
+
+export function AuthenticationPageView( { loading, alert, action, style = {}, className = "", children, ...props }: AuthenticationPageViewProps & HTMLAttributes<HTMLDivElement> )
 {
 	
 	return (
@@ -114,9 +115,9 @@ export function AuthenticationPageView( { loading, alert, action, style = {}, cl
 					</Button>
 				</form>
 			</div>
-		</div>
-	)
+		</div>)
 }
+
 
 
 storiesOf( "Alert", module )
@@ -126,41 +127,48 @@ storiesOf( "Alert", module )
 
 storiesOf( "AuthenticationPage", module )
 	.add( "Logging in", () =>
-		makeAuthPageView() )
+		makeAuthPageView( { action: "login" } ) )
 	
 	.add( "Signing up", () =>
 		makeAuthPageView( { action: "signup" } ) )
 	
-	.add( "Loading", () =>
+	.add( "Processing", () =>
 		makeAuthPageView( { loading: true } ) )
 	
-	.add( "Authentication error", () =>
+	.add( "Processed with error", () =>
 		makeAuthPageView( {
 			alert: {
 				type:    "error",
-				message: "Nope, not you 💩",
+				message: "Nope, unauthorized 💩",
 			},
 		} ) )
 	
-	
-	.add( "Authentication success", () =>
+	.add( "Processed success", () =>
 		makeAuthPageView( {
 			alert: {
 				type:    "success",
 				message: "Yay, you're in! 🥳",
 			},
-		} ),
-	)
+		} ) )
+	
+	.add( "Re-submit", () =>
+		makeAuthPageView( {
+			loading: true,
+			alert:   {
+				type:    "error",
+				message: "Nope, unauthorized  💩",
+			},
+		} ) )
 
 
 function makeAuthPageView( props: Partial<AuthenticationPageViewProps> = {} )
 {
-	const _safeProps: AuthenticationPageViewProps = {
+	const safeProps: AuthenticationPageViewProps = {
 		action:  "login",
-		alert:   undefined,
 		loading: false,
-		...props,
+		alert:   undefined,
+		...props as any, // we enforced states, ts doesn't like mixing in Partial<props>
 	}
 	
-	return <AuthenticationPageView {..._safeProps} />
+	return <AuthenticationPageView {...safeProps}  />
 }
