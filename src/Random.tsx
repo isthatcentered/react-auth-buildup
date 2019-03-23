@@ -122,22 +122,22 @@ export function Alert( { type, style = {}, className = "", children, ...props }:
 
 export interface LoaderProps extends HTMLAttributes<HTMLDivElement>
 {
-	width: number
+	msDuration: number
 }
 
 
-export function Loader( { width, style = {}, className = "", children, ...props }: LoaderProps )
+export function Loader( { msDuration, style = {}, className = "", children, ...props }: LoaderProps )
 {
 	
 	return (
 		<div
 			{...props}
 			style={{ ...style, height: 4 }}
-			className={`${className} Loader w-full bg-purple-lightest`}
+			className={`${className} Loader w-full bg-purple-lightest animation-grow`}
 		>
 			<div
-				className="h-full w-1/2 bg-purple"
-				style={{ width }}
+				className="h-full w-1/2 bg-purple animation-fill-width"
+				style={{ width: 0, animationDuration: `${msDuration}ms` }}
 			/>
 		</div>
 	)

@@ -72,7 +72,7 @@ export function AuthenticationPageView( { loading, alert, action, style = {}, cl
 			<div className="bg-white rounded shadow-md overflow-hidden"
 			     style={{ width: 440, maxWidth: "100%" }}>
 				
-				{loading && <Loader width={90}/>}
+				{loading && <Loader msDuration={8000}/>}
 				
 				<nav>
 					<ul className="list-reset flex justify-center text-center">

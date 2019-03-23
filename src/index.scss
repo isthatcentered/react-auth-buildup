@@ -14,3 +14,37 @@ body {
 	font-family: 'Source Sans Pro', sans-serif;
 }
 
+@keyframes fill-width {
+	
+	0% {
+		width: 0;
+	}
+	100% {
+		width: 100%;
+	}
+}
+
+.animation-fill-width {
+	animation-name: fill-width;
+	animation-fill-mode: forwards;
+}
+
+//
+//
+//@keyframes grow {
+//
+//	0% {
+//		opacity: 0;
+//		transform: translateY(-4px);
+//	}
+//	100% {
+//		opacity: 1;
+//		transform: none;
+//	}
+//}
+//
+//.animation-grow {
+//	animation-duration: 1s;
+//	animation-name: grow;
+//	animation-fill-mode: forwards;
+//}
