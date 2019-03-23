@@ -1,10 +1,10 @@
 import { fireEvent, render } from "react-testing-library"
 import * as React from "react"
 import { ReactElement } from "react"
-import { createHistory, createMemorySource, LocationProvider } from "@reach/router"
+import { createHistory, createMemorySource, LocationProvider, NavigateFn } from "@reach/router"
 import { App } from "./App"
 import { ContainerContext, ServicesContainer } from "./ServicesContainer"
-import { object } from "testdouble"
+import { func, object } from "testdouble"
 
 
 
@@ -67,6 +67,7 @@ export function appRender( route: string, services: ServicesContainer = object<S
 {
 	const history = {
 		...createHistory( createMemorySource( route ) ),
+		navigate: func<NavigateFn>(),
 	}
 	
 	const wrapper = customRender(
@@ -78,6 +79,6 @@ export function appRender( route: string, services: ServicesContainer = object<S
 	
 	return {
 		...wrapper,
-		history,
+		navigate: history.navigate,
 	}
 }

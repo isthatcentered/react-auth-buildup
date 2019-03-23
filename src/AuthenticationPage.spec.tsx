@@ -1,10 +1,9 @@
 import * as React from "react"
-import { feature, given, scenario, xand } from "jest-then";
+import { feature, given, scenario, xand, and } from "jest-then";
 import { appRender, tick } from "./testUtils"
 import { authenticationCredentials } from "./AuthenticationPage/AuthenticationForm"
-import { object, when } from "testdouble"
+import { object, verify, when } from "testdouble"
 import { Gatekeeper } from "./AuthenticationPage"
-import { wait } from "react-testing-library";
 
 
 
@@ -65,21 +64,18 @@ feature( `User can log in`, () => {
 		} )
 		
 		
-		xand( `User is redirected to home after a short delay`, async () => {
-			const { login, getByText, history, debug } = renderAuthPage()
+		and( `User is redirected to home after a short delay`, async () => {
+			const { login, getByText, navigate, debug } = renderAuthPage()
 			
 			login( credentials )
 			
 			await tick()
 			
-			// jest.advanceTimersByTime( 4000 )
+			jest.advanceTimersByTime( 3000 )
 			
-			await wait( () => {
-				debug()
-				// console.log( "*****LOCATION::::", history )
-				expect( history.location.pathname ).toBe( "/" )
-			} )
+			verify( navigate( "/", undefined ) )
 		} )
+		
 		// form submit should be disabled
 		
 		// message should be updated until redirect
