@@ -4,6 +4,7 @@ import { ReactElement } from "react"
 import { createHistory, createMemorySource, LocationProvider, NavigateFn } from "@reach/router"
 import { App } from "./App"
 import { func, TestDouble } from "testdouble"
+import { ServicesContainer, ServicesContext } from "./AuthPage.spec"
 
 
 
@@ -50,9 +51,13 @@ interface customRenderResults extends RenderResult
 }
 
 
-export function customRender( component: ReactElement<any> ): customRenderResults
+export function customRender( component: ReactElement<any>, services: Partial<ServicesContainer> ): customRenderResults
 {
-	const utils = render( component )
+	const utils = render(
+		<ServicesContext.Provider value={services as ServicesContainer}>
+			component
+		</ServicesContext.Provider>,
+	)
 	
 	const change = ( label: RegExp, value: any ) =>
 		fireEvent.change( utils.getByLabelText( label ), { target: { value } } )
@@ -86,7 +91,7 @@ export interface appRender extends customRenderResults
 }
 
 
-export function appRender( route: string ): appRender
+export function appRender( route: string, services: Partial<ServicesContainer> ): appRender
 {
 	const history = {
 		...createHistory( createMemorySource( route ) ),
@@ -96,7 +101,7 @@ export function appRender( route: string ): appRender
 	const wrapper = customRender(
 		<LocationProvider history={history}>
 			<App/>
-		</LocationProvider> )
+		</LocationProvider>, services )
 	
 	return {
 		...wrapper,

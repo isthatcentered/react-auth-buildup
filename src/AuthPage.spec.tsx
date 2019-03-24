@@ -4,12 +4,17 @@ import { createContext, HTMLAttributes, useContext, useEffect } from "react"
 import { Case, Feature, Given, Then, When } from "jest-then"
 import { appRender } from "./testUtils"
 import { RouteComponentProps } from "@reach/router"
-import { verify } from "testdouble"
+import { object, verify } from "testdouble"
 
 
 
 
-export const ServicesContext = createContext<{ gateway: Gateway }>( { gateway: {} as any } )
+export interface ServicesContainer
+{
+	gateway: Gateway
+}
+
+export const ServicesContext = createContext<ServicesContainer>( { gateway: {} as any } )
 
 interface Gateway
 {
@@ -50,7 +55,7 @@ Feature( `User is redirected to home if already logged in`, () => {
 		} )
 		
 		Then( "", () => {
-			const { navigate } = appRender( "/auth" )
+			const { navigate } = appRender( "/auth", object<ServicesContainer>() )
 			
 			verify( navigate( "/", undefined ) )
 			
