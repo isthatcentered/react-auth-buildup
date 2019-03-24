@@ -1,7 +1,7 @@
 import * as React from "react"
 import { createContext, HTMLAttributes, useContext, useEffect } from "react"
 
-import { Case, Feature, Given, Then, When } from "jest-then"
+import { Case, Feature, Given, Then } from "jest-then"
 import { appRender } from "./testUtils"
 import { RouteComponentProps } from "@reach/router"
 import { object, verify, when } from "testdouble"
@@ -49,40 +49,32 @@ export function AuthenticationPage( { navigate, style = {}, className = "", chil
 
 
 Feature( `User is redirected to home if already logged in`, () => {
+	const gatekeeper = object<Gatekeeper>()
+	
 	Case( "Already logged in ", () => {
-		Given( () => {
-		} )
+		Given( () => when( gatekeeper.isAuthenticated() ).thenReturn( true ) )
 		
-		When( () => {
-		} )
-		
-		Then( "", () => {
-			const gatekeeper = object<Gatekeeper>()
-			when( gatekeeper.isAuthenticated() ).thenReturn( true )
+		Then( "User is redirected to home", () => {
 			const { navigate } = appRender( "/auth", { gatekeeper } )
 			
 			verify( navigate( "/", undefined ) )
-			
-			// gatekeeper says I'm logged in
-			// I try to access the page
-			// I am redirected
 		} )
 	} )
 	
 	Case( "Not logged in ", () => {
-	
+		Given( () => when( gatekeeper.isAuthenticated() ).thenReturn( false ) )
+		
+		Then( "User is redirected to home", () => {
+			const { navigate } = appRender( "/auth", { gatekeeper } )
+			
+			verify( navigate( "/", undefined ), { times: 0 } )
+		} )
 	} )
-	// I get redirected to home if already authed
-	
-	test( ``, () => {
-	
-	} )
-	
-	// I can signup
-	// I get redirected to home success redirects to home
-	
-	
-	// I can login
-	// I get redirected to home
-	
 } )
+
+// I can signup
+// I get redirected to home success redirects to home
+
+
+// I can login
+// I get redirected to home
