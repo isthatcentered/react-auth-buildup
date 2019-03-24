@@ -3,19 +3,18 @@ import * as React from "react"
 import { ReactElement } from "react"
 import { createHistory, createMemorySource, LocationProvider, NavigateFn } from "@reach/router"
 import { App } from "./App"
-import { ContainerContext, ServicesContainer } from "./ServicesContainer"
-import { func, object, TestDouble } from "testdouble"
+import { func, TestDouble } from "testdouble"
 
 
 
 
-function fake<T>( name: string ): T
+export function fake<T>( name: string ): T
 {
 	return name as any as T
 }
 
 
-function aside<T>( cb: ( res: any ) => void ): ( res: T ) => T
+export function aside<T>( cb: ( res: any ) => void ): ( res: T ) => T
 {
 	return ( res ) => {
 		
@@ -87,7 +86,7 @@ export interface appRender extends customRenderResults
 }
 
 
-export function appRender( route: string, services: ServicesContainer = object<ServicesContainer>() ): appRender
+export function appRender( route: string ): appRender
 {
 	const history = {
 		...createHistory( createMemorySource( route ) ),
@@ -95,11 +94,9 @@ export function appRender( route: string, services: ServicesContainer = object<S
 	}
 	
 	const wrapper = customRender(
-		<ContainerContext.Provider value={services}>
-			<LocationProvider history={history}>
-				<App/>
-			</LocationProvider>
-		</ContainerContext.Provider> )
+		<LocationProvider history={history}>
+			<App/>
+		</LocationProvider> )
 	
 	return {
 		...wrapper,

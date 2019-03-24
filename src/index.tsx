@@ -3,25 +3,12 @@ import ReactDOM from "react-dom";
 import "./index.scss";
 import { App } from "./App";
 import * as serviceWorker from "./serviceWorker";
-import { ContainerContext, ServicesContainer } from "./ServicesContainer"
-import { authenticationCredentials } from "./AuthenticationPage/AuthenticationForm"
 
 
 
-
-const services: ServicesContainer = {
-	gatekeeper: {
-		login( credentials: authenticationCredentials ): Promise<void>
-		{
-			return Promise.resolve()
-		},
-	},
-}
 
 ReactDOM.render(
-	<ContainerContext.Provider value={services}>
-		<App/>
-	</ContainerContext.Provider>,
+	<App/>,
 	document.getElementById( "root" ),
 );
 
