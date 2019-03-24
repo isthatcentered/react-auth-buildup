@@ -1,7 +1,7 @@
 import * as React from "react"
 import { FormEvent, HTMLAttributes, useContext, useEffect } from "react"
 
-import { Case, Feature, Given, Then } from "jest-then"
+import { And, Case, Feature, Given, Then } from "jest-then"
 import { appRender, tick } from "./testUtils"
 import { RouteComponentProps } from "@reach/router"
 import { object, verify, when } from "testdouble"
@@ -61,6 +61,9 @@ export function AuthenticationPage( { navigate, style = {}, className = "", chil
 			style={{ ...style }}
 			className={`${className} AuthenticationPage`}
 		>
+			
+			Error from reject
+			
 			<form onSubmit={handleSubmit}>
 				<label>
 					Email
@@ -117,10 +120,6 @@ Feature( `User can log in`, () => {
 		
 		Given( () => when( gatekeeper.login( credentials ) ).thenResolve() )
 		
-		when( () => {
-		
-		} )
-		
 		Then( "User is redirected to home", async () => {
 			const { navigate, fill, click, submit } = appRender( "/auth", { gatekeeper } )
 			
@@ -137,17 +136,37 @@ Feature( `User can log in`, () => {
 	} )
 	
 	Case( "Not authorized", () => {
-		// Given( () => when( gatekeeper.isAuthenticated() ).thenReturn( false ) )
-		//
-		// Then( "User gets an alert", () => {
-		// 	const { navigate } = appRender( "/auth", { gatekeeper } )
-		//
-		// 	verify( navigate( "/", undefined ), { times: 0 } )
-		// } )
-		//
-		// And( "User is not redirected", () => {
-		//
-		// } )
+		const error = { message: "Error from reject", name: "" }
+		
+		Given( () => when( gatekeeper.login( credentials ) ).thenReject( error ) )
+		
+		Then( "User is not redirected", async () => {
+			const { navigate, fill, click, submit } = appRender( "/auth", { gatekeeper } )
+			
+			fill( /email/i, credentials.email )
+			
+			fill( /password/i, credentials.password )
+			
+			click( /log me in/i )
+			
+			await tick()
+			
+			verify( navigate( "/", undefined ), { times: 0 } )
+		} )
+		
+		And( "User gets an alert", async () => {
+			const { navigate, fill, click, submit, getByText } = appRender( "/auth", { gatekeeper } )
+			
+			fill( /email/i, credentials.email )
+			
+			fill( /password/i, credentials.password )
+			
+			click( /log me in/i )
+			
+			await tick()
+			
+			getByText( error.message )
+		} )
 	} )
 } )
 
