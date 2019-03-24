@@ -1,22 +1,16 @@
 import * as React from "react"
-import { createContext, HTMLAttributes, useContext, useEffect } from "react"
+import { HTMLAttributes, useContext, useEffect } from "react"
 
 import { Case, Feature, Given, Then } from "jest-then"
 import { appRender } from "./testUtils"
 import { RouteComponentProps } from "@reach/router"
 import { object, verify, when } from "testdouble"
+import { ServicesContext } from "./ServicesContext"
 
 
 
 
-export interface ServicesContainer
-{
-	gatekeeper: Gatekeeper
-}
-
-export const ServicesContext = createContext<ServicesContainer>( { gatekeeper: {} as any } )
-
-interface Gatekeeper
+export interface Gatekeeper
 {
 	isAuthenticated(): boolean;
 }

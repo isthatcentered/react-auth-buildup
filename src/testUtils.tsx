@@ -4,7 +4,7 @@ import { ReactElement } from "react"
 import { createHistory, createMemorySource, LocationProvider, NavigateFn } from "@reach/router"
 import { App } from "./App"
 import { func, TestDouble } from "testdouble"
-import { ServicesContainer, ServicesContext } from "./AuthPage.spec"
+import { ServicesContainer, ServicesContext } from "./ServicesContext"
 
 
 
