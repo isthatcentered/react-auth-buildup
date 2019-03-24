@@ -1,8 +1,8 @@
 import * as React from "react"
 import { FormEvent, HTMLAttributes, useContext, useEffect, useState } from "react"
 
-import { And, Case, Feature, Given, Then } from "jest-then"
-import { appRender, tick } from "./testUtils"
+import { And, Case, Feature, Given, Then, When } from "jest-then"
+import { appRender, appRenderResults, tick } from "./testUtils"
 import { RouteComponentProps } from "@reach/router"
 import { object, verify, when } from "testdouble"
 import { ServicesContext } from "./ServicesContext"
@@ -45,6 +45,7 @@ export function AuthenticationPage( { navigate, style = {}, className = "", chil
 	function handleSubmit( e: FormEvent<HTMLFormElement> )
 	{
 		e.preventDefault()
+		
 		const data     = new FormData( e.target as HTMLFormElement ),
 		      email    = data.get( "email" ) as string | undefined,
 		      password = data.get( "password" ) as string | undefined
@@ -89,33 +90,34 @@ export function AuthenticationPage( { navigate, style = {}, className = "", chil
 }
 
 
+const gatekeeper = object<Gatekeeper>()
+let page: authPageRender
+
 Feature( `User is redirected to home if already logged in`, () => {
-	const gatekeeper = object<Gatekeeper>()
 	
 	Case( "Already logged in ", () => {
 		Given( () => when( gatekeeper.isAuthenticated() ).thenReturn( true ) )
 		
+		Given( () => page = renderAuthPage( gatekeeper ) )
+		
 		Then( "User is redirected to home", () => {
-			const { navigate } = appRender( "/auth", { gatekeeper } )
-			
-			verify( navigate( "/", undefined ) )
+			verify( page.navigate( "/", undefined ) )
 		} )
 	} )
 	
 	Case( "Not logged in ", () => {
 		Given( () => when( gatekeeper.isAuthenticated() ).thenReturn( false ) )
 		
+		Given( () => page = renderAuthPage( gatekeeper ) )
+		
 		Then( "User is redirected to home", () => {
-			const { navigate } = appRender( "/auth", { gatekeeper } )
-			
-			verify( navigate( "/", undefined ), { times: 0 } )
+			verify( page.navigate( "/", undefined ), { times: 0 } )
 		} )
 	} )
 } )
 
 Feature( `User can log in`, () => {
-	const gatekeeper               = object<Gatekeeper>(),
-	      credentials: credentials = { email: "user@email.com", password: "$password$" }
+	const credentials: credentials = { email: "user@email.com", password: "$password$" }
 	
 	Given( () => when( gatekeeper.isAuthenticated() ).thenReturn( false ) )
 	
@@ -123,18 +125,12 @@ Feature( `User can log in`, () => {
 		
 		Given( () => when( gatekeeper.login( credentials ) ).thenResolve() )
 		
+		Given( () => page = renderAuthPage( gatekeeper ) )
+		
+		When( async () => await page.login( credentials ) )
+		
 		Then( "User is redirected to home", async () => {
-			const { navigate, fill, submit } = appRender( "/auth", { gatekeeper } )
-			
-			fill( /email/i, credentials.email )
-			
-			fill( /password/i, credentials.password )
-			
-			submit( /log me in/i )
-			
-			await tick()
-			
-			verify( navigate( "/", undefined ) )
+			verify( page.navigate( "/", undefined ) )
 		} )
 	} )
 	
@@ -143,35 +139,48 @@ Feature( `User can log in`, () => {
 		
 		Given( () => when( gatekeeper.login( credentials ) ).thenReject( error ) )
 		
+		Given( () => page = renderAuthPage( gatekeeper ) )
+		
+		When( async () => await page.login( credentials ) )
+		
 		Then( "User stays on page", async () => {
-			const { navigate, fill, submit } = appRender( "/auth", { gatekeeper } )
-			
-			fill( /email/i, credentials.email )
-			
-			fill( /password/i, credentials.password )
-			
-			submit( /log me in/i )
-			
-			await tick()
-			
-			verify( navigate( "/", undefined ), { times: 0 } )
+			verify( page.navigate( "/", undefined ), { times: 0 } )
 		} )
 		
 		And( "User can see the error message", async () => {
-			const { fill, submit, getByText } = appRender( "/auth", { gatekeeper } )
-			
-			fill( /email/i, credentials.email )
-			
-			fill( /password/i, credentials.password )
-			
-			submit( /log me in/i )
-			
-			await tick()
-			
-			getByText( error.message )
+			page.getByText( error.message )
 		} )
 	} )
 } )
 
 // I can login
 // I get redirected to home
+
+interface authPageRender extends appRenderResults
+{
+	login( credentials: credentials ): Promise<void>
+}
+
+
+function renderAuthPage( gatekeeper: Gatekeeper ): authPageRender
+{
+	const wrapper = appRender( "/auth", { gatekeeper } )
+	
+	
+	async function login( credentials: credentials )
+	{
+		wrapper.fill( /email/i, credentials.email )
+		
+		wrapper.fill( /password/i, credentials.password )
+		
+		wrapper.submit( /log me in/i )
+		
+		await tick()
+	}
+	
+	
+	return {
+		login,
+		...wrapper,
+	}
+}

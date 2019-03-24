@@ -85,13 +85,13 @@ export function customRender( component: ReactElement<any>, services: Partial<Se
 }
 
 
-export interface appRender extends customRenderResults
+export interface appRenderResults extends customRenderResults
 {
 	navigate: TestDouble<NavigateFn>,
 }
 
 
-export function appRender( route: string, services: Partial<ServicesContainer> ): appRender
+export function appRender( route: string, services: Partial<ServicesContainer> ): appRenderResults
 {
 	const history = {
 		...createHistory( createMemorySource( route ) ),
