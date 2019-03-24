@@ -66,9 +66,36 @@ Feature( `User is redirected to home if already logged in`, () => {
 	} )
 } )
 
-// I can signup
-// I get redirected to home success redirects to home
-
+Feature( `User can log in`, () => {
+	const gatekeeper = object<Gatekeeper>()
+	
+	Given( () => when( gatekeeper.isAuthenticated() ).thenReturn( false ) )
+	
+	
+	Case( "Authorized", () => {
+		// Given( () => when( gatekeeper.isAuthenticated() ).thenReturn( true ) )
+		
+		Then( "User is redirected to home", () => {
+			// const { navigate } = appRender( "/auth", { gatekeeper } )
+			//
+			// verify( navigate( "/", undefined ) )
+		} )
+	} )
+	
+	Case( "Not authorized", () => {
+		// Given( () => when( gatekeeper.isAuthenticated() ).thenReturn( false ) )
+		//
+		// Then( "User gets an alert", () => {
+		// 	const { navigate } = appRender( "/auth", { gatekeeper } )
+		//
+		// 	verify( navigate( "/", undefined ), { times: 0 } )
+		// } )
+		//
+		// And( "User is not redirected", () => {
+		//
+		// } )
+	} )
+} )
 
 // I can login
 // I get redirected to home
