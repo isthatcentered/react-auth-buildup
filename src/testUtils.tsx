@@ -55,7 +55,7 @@ export function customRender( component: ReactElement<any>, services: Partial<Se
 {
 	const utils = render(
 		<ServicesContext.Provider value={services as ServicesContainer}>
-			component
+			{component}
 		</ServicesContext.Provider>,
 	)
 	

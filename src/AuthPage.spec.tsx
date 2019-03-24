@@ -11,12 +11,12 @@ import { object, verify } from "testdouble"
 
 export interface ServicesContainer
 {
-	gateway: Gateway
+	gatekeeper: Gatekeeper
 }
 
-export const ServicesContext = createContext<ServicesContainer>( { gateway: {} as any } )
+export const ServicesContext = createContext<ServicesContainer>( { gatekeeper: {} as any } )
 
-interface Gateway
+interface Gatekeeper
 {
 }
 
@@ -28,7 +28,7 @@ export interface AuthenticationPageProps extends RouteComponentProps, HTMLAttrib
 
 export function AuthenticationPage( { navigate, style = {}, className = "", children, ...props }: AuthenticationPageProps )
 {
-	const { gateway } = useContext( ServicesContext )
+	const { gatekeeper } = useContext( ServicesContext )
 	
 	useEffect( () => {
 		navigate!( "/" )
@@ -55,11 +55,13 @@ Feature( `User is redirected to home if already logged in`, () => {
 		} )
 		
 		Then( "", () => {
+			const gatekeeper = object<Gatekeeper>()
+			
 			const { navigate } = appRender( "/auth", object<ServicesContainer>() )
 			
 			verify( navigate( "/", undefined ) )
 			
-			// gateway says I'm logged in
+			// gatekeeper says I'm logged in
 			// I try to access the page
 			// I am redirected
 		} )
