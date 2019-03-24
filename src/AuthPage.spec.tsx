@@ -4,7 +4,7 @@ import { createContext, HTMLAttributes, useContext, useEffect } from "react"
 import { Case, Feature, Given, Then, When } from "jest-then"
 import { appRender } from "./testUtils"
 import { RouteComponentProps } from "@reach/router"
-import { object, verify } from "testdouble"
+import { object, verify, when } from "testdouble"
 
 
 
@@ -18,6 +18,7 @@ export const ServicesContext = createContext<ServicesContainer>( { gatekeeper: {
 
 interface Gatekeeper
 {
+	isAuthenticated(): boolean;
 }
 
 
@@ -31,7 +32,8 @@ export function AuthenticationPage( { navigate, style = {}, className = "", chil
 	const { gatekeeper } = useContext( ServicesContext )
 	
 	useEffect( () => {
-		navigate!( "/" )
+		if ( gatekeeper.isAuthenticated() )
+			navigate!( "/" )
 	} )
 	
 	return (
@@ -56,8 +58,8 @@ Feature( `User is redirected to home if already logged in`, () => {
 		
 		Then( "", () => {
 			const gatekeeper = object<Gatekeeper>()
-			
-			const { navigate } = appRender( "/auth", object<ServicesContainer>() )
+			when( gatekeeper.isAuthenticated() ).thenReturn( true )
+			const { navigate } = appRender( "/auth", { gatekeeper } )
 			
 			verify( navigate( "/", undefined ) )
 			
