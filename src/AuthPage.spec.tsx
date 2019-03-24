@@ -1,11 +1,12 @@
 import * as React from "react"
-import { FormEvent, HTMLAttributes, useContext, useEffect } from "react"
+import { FormEvent, HTMLAttributes, useContext, useEffect, useState } from "react"
 
 import { And, Case, Feature, Given, Then } from "jest-then"
 import { appRender, tick } from "./testUtils"
 import { RouteComponentProps } from "@reach/router"
 import { object, verify, when } from "testdouble"
 import { ServicesContext } from "./ServicesContext"
+import { Alert } from "./Random"
 
 
 
@@ -32,7 +33,8 @@ export interface AuthenticationPageProps extends RouteComponentProps, HTMLAttrib
 
 export function AuthenticationPage( { navigate, style = {}, className = "", children, ...props }: AuthenticationPageProps )
 {
-	const { gatekeeper } = useContext( ServicesContext )
+	const { gatekeeper }      = useContext( ServicesContext ),
+	      [ alert, setAlert ] = useState<string | undefined>( undefined )
 	
 	useEffect( () => {
 		if ( gatekeeper.isAuthenticated() )
@@ -52,6 +54,7 @@ export function AuthenticationPage( { navigate, style = {}, className = "", chil
 		
 		gatekeeper.login( { email, password } )
 			.then( () => navigate!( "/" ) )
+			.catch( ( err: Error ) => setAlert( err.message ) )
 	}
 	
 	
@@ -62,7 +65,7 @@ export function AuthenticationPage( { navigate, style = {}, className = "", chil
 			className={`${className} AuthenticationPage`}
 		>
 			
-			Error from reject
+			{alert && <Alert type="error">{alert}</Alert>}
 			
 			<form onSubmit={handleSubmit}>
 				<label>
@@ -140,7 +143,7 @@ Feature( `User can log in`, () => {
 		
 		Given( () => when( gatekeeper.login( credentials ) ).thenReject( error ) )
 		
-		Then( "User is not redirected", async () => {
+		Then( "User stays on page", async () => {
 			const { navigate, fill, submit } = appRender( "/auth", { gatekeeper } )
 			
 			fill( /email/i, credentials.email )
@@ -154,8 +157,8 @@ Feature( `User can log in`, () => {
 			verify( navigate( "/", undefined ), { times: 0 } )
 		} )
 		
-		And( "User gets an alert", async () => {
-			const {  fill, submit, getByText } = appRender( "/auth", { gatekeeper } )
+		And( "User can see the error message", async () => {
+			const { fill, submit, getByText } = appRender( "/auth", { gatekeeper } )
 			
 			fill( /email/i, credentials.email )
 			
