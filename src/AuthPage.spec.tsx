@@ -121,13 +121,13 @@ Feature( `User can log in`, () => {
 		Given( () => when( gatekeeper.login( credentials ) ).thenResolve() )
 		
 		Then( "User is redirected to home", async () => {
-			const { navigate, fill, click, submit } = appRender( "/auth", { gatekeeper } )
+			const { navigate, fill, submit } = appRender( "/auth", { gatekeeper } )
 			
 			fill( /email/i, credentials.email )
 			
 			fill( /password/i, credentials.password )
 			
-			click( /log me in/i )
+			submit( /log me in/i )
 			
 			await tick()
 			
@@ -141,13 +141,13 @@ Feature( `User can log in`, () => {
 		Given( () => when( gatekeeper.login( credentials ) ).thenReject( error ) )
 		
 		Then( "User is not redirected", async () => {
-			const { navigate, fill, click, submit } = appRender( "/auth", { gatekeeper } )
+			const { navigate, fill, submit } = appRender( "/auth", { gatekeeper } )
 			
 			fill( /email/i, credentials.email )
 			
 			fill( /password/i, credentials.password )
 			
-			click( /log me in/i )
+			submit( /log me in/i )
 			
 			await tick()
 			
@@ -155,13 +155,13 @@ Feature( `User can log in`, () => {
 		} )
 		
 		And( "User gets an alert", async () => {
-			const { navigate, fill, click, submit, getByText } = appRender( "/auth", { gatekeeper } )
+			const {  fill, submit, getByText } = appRender( "/auth", { gatekeeper } )
 			
 			fill( /email/i, credentials.email )
 			
 			fill( /password/i, credentials.password )
 			
-			click( /log me in/i )
+			submit( /log me in/i )
 			
 			await tick()
 			
