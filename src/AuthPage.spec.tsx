@@ -2,7 +2,7 @@ import * as React from "react"
 import { FormEvent, HTMLAttributes, useContext, useEffect, useState } from "react"
 
 import { And, Case, Feature, Given, Then, When } from "jest-then"
-import { appRender, appRenderResults, tick } from "./testUtils"
+import { appRender, tick } from "./testUtils"
 import { RouteComponentProps } from "@reach/router"
 import { object, verify, when } from "testdouble"
 import { ServicesContext } from "./ServicesContext"
@@ -90,8 +90,10 @@ export function AuthenticationPage( { navigate, style = {}, className = "", chil
 }
 
 
-const gatekeeper = object<Gatekeeper>()
-let page: authPageRender
+const gatekeeper               = object<Gatekeeper>(),
+      credentials: credentials = { email: "user@email.com", password: "$password$" }
+
+let page: ReturnType<typeof renderAuthPage>
 
 Feature( `User is redirected to home if already logged in`, () => {
 	
@@ -117,7 +119,6 @@ Feature( `User is redirected to home if already logged in`, () => {
 } )
 
 Feature( `User can log in`, () => {
-	const credentials: credentials = { email: "user@email.com", password: "$password$" }
 	
 	Given( () => when( gatekeeper.isAuthenticated() ).thenReturn( false ) )
 	
@@ -153,16 +154,31 @@ Feature( `User can log in`, () => {
 	} )
 } )
 
-// I can login
-// I get redirected to home
+Feature( "User can sign-up", () => {
+	Case( "Authorized", () => {
+		
+		Given( () => when( gatekeeper.login( credentials ) ).thenResolve() )
+		
+		Given( () => page = renderAuthPage( gatekeeper ) )
+		
+		When( () => {
+			page.switchTab( "signup" )
+		} )
+		
+		When( async () => await page.login( credentials ) )
+		
+		Then( "User is redirected to home", async () => {
+			verify( page.navigate( "/", undefined ) )
+		} )
+	} )
+	
+	Case( "Registration error", () => {
+	
+	} )
+} )
 
-interface authPageRender extends appRenderResults
-{
-	login( credentials: credentials ): Promise<void>
-}
 
-
-function renderAuthPage( gatekeeper: Gatekeeper ): authPageRender
+function renderAuthPage( gatekeeper: Gatekeeper )
 {
 	const wrapper = appRender( "/auth", { gatekeeper } )
 	

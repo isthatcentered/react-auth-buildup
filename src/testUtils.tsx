@@ -1,4 +1,4 @@
-import { fireEvent, render, RenderResult } from "react-testing-library"
+import { fireEvent, render } from "react-testing-library"
 import * as React from "react"
 import { ReactElement } from "react"
 import { createHistory, createMemorySource, LocationProvider, NavigateFn } from "@reach/router"
@@ -33,25 +33,7 @@ export function tick(): Promise<undefined>
 }
 
 
-interface customRenderResults extends RenderResult
-{
-	fill( label: RegExp, value: any ): void
-	
-	change( label: RegExp, value: any ): void
-	
-	slide( label: RegExp, value: any ): void
-	
-	fill( label: RegExp, value: any ): void
-	
-	click( label: RegExp ): void
-	
-	submit( label: RegExp ): void
-	
-	wrapper: HTMLElement
-}
-
-
-export function customRender( component: ReactElement<any>, services: Partial<ServicesContainer> ): customRenderResults
+export function customRender( component: ReactElement<any>, services: Partial<ServicesContainer> )
 {
 	const utils = render(
 		<ServicesContext.Provider value={services as ServicesContainer}>
@@ -84,14 +66,7 @@ export function customRender( component: ReactElement<any>, services: Partial<Se
 	}
 }
 
-
-export interface appRenderResults extends customRenderResults
-{
-	navigate: TestDouble<NavigateFn>,
-}
-
-
-export function appRender( route: string, services: Partial<ServicesContainer> ): appRenderResults
+export function appRender( route: string, services: Partial<ServicesContainer> )
 {
 	const history = {
 		...createHistory( createMemorySource( route ) ),
