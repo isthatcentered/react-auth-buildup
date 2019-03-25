@@ -1,5 +1,5 @@
 import { createContext } from "react"
-import { Gatekeeper } from "./AuthPage.spec"
+import { Gatekeeper } from "./AuthPage"
 
 
 

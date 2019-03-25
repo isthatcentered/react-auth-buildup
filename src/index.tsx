@@ -3,12 +3,28 @@ import ReactDOM from "react-dom";
 import "./index.scss";
 import { App } from "./App";
 import * as serviceWorker from "./serviceWorker";
+import { ServicesContainer, ServicesContext } from "./ServicesContext";
+import { credentials } from "./AuthPage"
 
 
 
 
+const services: ServicesContainer = {
+	gatekeeper: {
+		login( credentials: credentials ): Promise<void>
+		{
+			return Promise.resolve()
+		},
+		isAuthenticated(): boolean
+		{
+			return false
+		},
+	},
+}
 ReactDOM.render(
-	<App/>,
+	<ServicesContext.Provider value={services}>
+		<App/>
+	</ServicesContext.Provider>,
 	document.getElementById( "root" ),
 );
 

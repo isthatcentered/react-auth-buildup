@@ -1,95 +1,11 @@
 import * as React from "react"
-import { FormEvent, HTMLAttributes, useContext, useEffect, useState } from "react"
 
 import { And, Case, Feature, Given, Scenario, Then, When, xAnd } from "jest-then"
 import { appRender, tick } from "./testUtils"
-import { RouteComponentProps } from "@reach/router"
 import { object, verify, when } from "testdouble"
-import { ServicesContext } from "./ServicesContext"
-import { Alert } from "./Random"
+import { credentials, Gatekeeper } from "./AuthPage"
 
 
-
-
-export interface credentials
-{
-	email: string
-	password: string
-}
-
-
-export interface Gatekeeper
-{
-	isAuthenticated(): boolean;
-	
-	login( credentials: credentials ): Promise<void>
-}
-
-
-export interface AuthenticationPageProps extends RouteComponentProps, HTMLAttributes<HTMLDivElement>
-{
-}
-
-
-export function AuthenticationPage( { navigate, style = {}, className = "", children, ...props }: AuthenticationPageProps )
-{
-	const { gatekeeper }      = useContext( ServicesContext ),
-	      [ alert, setAlert ] = useState<string | undefined>( undefined )
-	
-	useEffect( () => {
-		if ( gatekeeper.isAuthenticated() )
-			navigate!( "/" )
-	} )
-	
-	
-	function handleSubmit( e: FormEvent<HTMLFormElement> )
-	{
-		e.preventDefault()
-		
-		const data     = new FormData( e.target as HTMLFormElement ),
-		      email    = data.get( "email" ) as string | undefined,
-		      password = data.get( "password" ) as string | undefined
-		
-		if ( !email || !password )
-			return
-		
-		gatekeeper.login( { email, password } )
-			.then( () => navigate!( "/" ) )
-			.catch( ( err: Error ) => setAlert( err.message ) )
-	}
-	
-	
-	return (
-		<div
-			{...props}
-			style={{ ...style }}
-			className={`${className} AuthenticationPage`}
-		>
-			
-			{alert && <Alert type="error">{alert}</Alert>}
-			
-			<form onSubmit={handleSubmit}>
-				<label>
-					Email
-					<input type="email"
-					       name="email"
-					       placeholder="Email"/>
-				</label>
-				
-				<label>
-					Password
-					<input type="password"
-					       name="password"
-					       placeholder="Password"/>
-				</label>
-				
-				<button type="submit">Log me in</button>
-				
-				Sign me up
-			</form>
-		</div>
-	)
-}
 
 
 const gatekeeper               = object<Gatekeeper>(),
@@ -165,7 +81,7 @@ Feature( "Tabs are controlled by url", () => {
 		Then( `Login tab is active by default`, () => {
 			page.getByText( /log me in/i )
 		} )
-
+		
 		xAnd( `Sign up tab is not visible`, () => {
 			expect( () => page.getByText( /Sign me up/i ) ).toThrow()
 		} )
