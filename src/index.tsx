@@ -15,6 +15,10 @@ const services: ServicesContainer = {
 		{
 			return Promise.resolve()
 		},
+		signup( credentials: credentials ): Promise<void>
+		{
+			return Promise.resolve()
+		},
 		isAuthenticated(): boolean
 		{
 			return false

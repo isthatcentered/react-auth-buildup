@@ -19,6 +19,8 @@ export interface Gatekeeper
 	isAuthenticated(): boolean;
 	
 	login( credentials: credentials ): Promise<void>
+	
+	signup( credentials: credentials ): Promise<void>
 }
 
 export interface AuthenticationPageProps extends RouteComponentProps, HTMLAttributes<HTMLDivElement>
@@ -50,7 +52,7 @@ export function AuthenticationPage( { navigate, location, style = {}, className 
 		if ( !email || !password )
 			return
 		
-		gatekeeper.login( { email, password } )
+		gatekeeper[ action ]( { email, password } )
 			.then( () => navigate!( "/" ) )
 			.catch( ( err: Error ) => setAlert( err.message ) )
 	}

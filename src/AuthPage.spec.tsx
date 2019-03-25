@@ -74,7 +74,7 @@ Feature( `User can log in`, () => {
 Feature( "User can sign-up", () => {
 	Case( "Authorized", () => {
 		
-		Given( () => when( gatekeeper.login( credentialz ) ).thenResolve() )
+		Given( () => when( gatekeeper.signup( credentialz ) ).thenResolve() )
 		
 		Given( () => page = renderAuthPage( gatekeeper, { query: "?action=signup" } ) )
 		
@@ -88,7 +88,7 @@ Feature( "User can sign-up", () => {
 	Case( "Registration error", () => {
 		const error = { message: "Error from reject", name: "" }
 		
-		Given( () => when( gatekeeper.login( credentialz ) ).thenReject( error ) )
+		Given( () => when( gatekeeper.signup( credentialz ) ).thenReject( error ) )
 		
 		Given( () => page = renderAuthPage( gatekeeper, { query: "?action=signup" } ) )
 		
