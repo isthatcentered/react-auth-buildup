@@ -1,8 +1,9 @@
 import * as React from "react"
 import { And, Case, Feature, Given, Scenario, Then, When } from "jest-then"
 import { appRender, tick } from "./testUtils"
-import { object, verify, when } from "testdouble"
+import { object, when } from "testdouble"
 import { credentials, Gatekeeper } from "./AuthPage"
+import { wait } from "react-testing-library";
 
 
 
@@ -20,7 +21,7 @@ Feature( `User is redirected to home if already logged in`, () => {
 		Given( () => page = renderAuthPage( gatekeeper ) )
 		
 		Then( "User is redirected to home", () => {
-			verify( page.navigate( "/", undefined ) )
+			expect( page.history.location.pathname ).toBe( "/" )
 		} )
 	} )
 	
@@ -29,8 +30,8 @@ Feature( `User is redirected to home if already logged in`, () => {
 		
 		Given( () => page = renderAuthPage( gatekeeper ) )
 		
-		Then( "User is redirected to home", () => {
-			verify( page.navigate( "/", undefined ), { times: 0 } )
+		Then( "User is NOT redirected to home", () => {
+			expect( page.history.location.pathname ).toContain( "/auth" )
 		} )
 	} )
 } )
@@ -48,7 +49,7 @@ Feature( `User can log in`, () => {
 		When( async () => await page.login( credentialz ) )
 		
 		Then( "User is redirected to home", async () => {
-			verify( page.navigate( "/", undefined ) )
+			expect( page.history.location.pathname ).toBe( "/" )
 		} )
 	} )
 	
@@ -62,7 +63,7 @@ Feature( `User can log in`, () => {
 		When( async () => await page.login( credentialz ) )
 		
 		Then( "User stays on page", async () => {
-			verify( page.navigate( "/", undefined ), { times: 0 } )
+			expect( page.history.location.pathname ).toBe( "/auth" )
 		} )
 		
 		And( "User can see the error message", async () => {
@@ -76,12 +77,14 @@ Feature( "User can sign-up", () => {
 		
 		Given( () => when( gatekeeper.signup( credentialz ) ).thenResolve() )
 		
-		Given( () => page = renderAuthPage( gatekeeper, { query: "?action=signup" } ) )
+		Given( () => page = renderAuthPage( gatekeeper ) )
 		
-		When( async () => await page.signup( credentialz ) )
+		When( () => page.switchTab( "signup" ) )
+		
+		When( async () => await wait( () => page.signup( credentialz ) ) )
 		
 		Then( "User is redirected to home", async () => {
-			verify( page.navigate( "/", undefined ) )
+			expect( page.history.location.pathname ).toBe( "/" )
 		} )
 	} )
 	
@@ -90,12 +93,14 @@ Feature( "User can sign-up", () => {
 		
 		Given( () => when( gatekeeper.signup( credentialz ) ).thenReject( error ) )
 		
-		Given( () => page = renderAuthPage( gatekeeper, { query: "?action=signup" } ) )
+		Given( () => page = renderAuthPage( gatekeeper ) )
 		
-		When( async () => await page.signup( credentialz ) )
+		When( () => page.switchTab( "signup" ) )
+		
+		When( async () => await wait( () => page.signup( credentialz ) ) )
 		
 		Then( "User stays on page", async () => {
-			verify( page.navigate( "/", undefined ), { times: 0 } )
+			expect( page.history.location.pathname ).toBe( "/auth" )
 		} )
 		
 		And( "User can see the error message", async () => {
@@ -145,19 +150,25 @@ Feature( "Tabs are controlled by url", () => {
 		
 		Given( () => page = renderAuthPage( gatekeeper, { query: "" } ) )
 		
-		Then( "Correct tab is set via url", () => {
+		Then( "Correct tab is set via url", async () => {
 			page.click( /signup/i )
 			
-			verify( page.navigate( "/auth?action=signup", undefined ) )
+			expect( page.history.location ).toMatchObject( {
+				pathname: "/auth",
+				search:   "action=signup",
+			} )
 			
 			page.click( /login/i )
 			
-			verify( page.navigate( "/auth?action=login", undefined ) )
+			expect( page.history.location ).toMatchObject( {
+				pathname: "/auth",
+				search:   "action=login",
+			} )
 		} )
 	} )
 } )
 
-// @todo: Find out how to test router route after navigate to enable true tab click in tests
+// @done: Find out how to test router route after navigate to enable true tab click in tests
 // @todo: Extract tab tests
 // @todo: Add new integration test to ensure active tab comes from url
 // @todo: Merge signup and login as table test case
@@ -197,9 +208,29 @@ function renderAuthPage( gatekeeper: Gatekeeper, { query }: { query: string } = 
 	}
 	
 	
+	function switchTab( tab: "login" | "signup" ): void
+	{
+		switch ( tab ) {
+			
+			case "login":
+				wrapper.click( /login/i )
+				break;
+			
+			case "signup":
+				wrapper.click( /signup/i )
+				break;
+			
+			default:
+				const shouldNotBeReached: never = tab
+				break;
+		}
+	}
+	
+	
 	return {
 		login,
 		signup,
+		switchTab,
 		...wrapper,
 	}
 }
