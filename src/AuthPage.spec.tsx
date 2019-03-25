@@ -163,11 +163,17 @@ function renderAuthPage( gatekeeper: Gatekeeper, { query }: { query: string } = 
 	const wrapper = appRender( `/auth${query}`, { gatekeeper } )
 	
 	
-	async function login( credentials: credentials )
+	function fillCredentials( credentials: credentials )
 	{
 		wrapper.fill( /email/i, credentials.email )
 		
 		wrapper.fill( /password/i, credentials.password )
+	}
+	
+	
+	async function login( credentials: credentials )
+	{
+		fillCredentials( credentials )
 		
 		wrapper.submit( /log me in/i )
 		
@@ -177,9 +183,7 @@ function renderAuthPage( gatekeeper: Gatekeeper, { query }: { query: string } = 
 	
 	async function signup( credentials: credentials )
 	{
-		wrapper.fill( /email/i, credentials.email )
-		
-		wrapper.fill( /password/i, credentials.password )
+		fillCredentials( credentials )
 		
 		wrapper.submit( /sign me up/i )
 		
