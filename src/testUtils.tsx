@@ -3,7 +3,7 @@ import * as React from "react"
 import { ReactElement } from "react"
 import { createHistory, createMemorySource, LocationProvider, NavigateFn } from "@reach/router"
 import { App } from "./App"
-import { func, TestDouble } from "testdouble"
+import { func } from "testdouble"
 import { ServicesContainer, ServicesContext } from "./ServicesContext"
 
 
@@ -66,12 +66,19 @@ export function customRender( component: ReactElement<any>, services: Partial<Se
 	}
 }
 
+
 export function appRender( route: string, services: Partial<ServicesContainer> )
 {
+	const [ path, query ] = route.split( "?" )
+	
 	const history = {
 		...createHistory( createMemorySource( route ) ),
 		navigate: func<NavigateFn>(),
 	}
+	
+	history.location.search = query ?
+	                          `?${query}` :
+	                          ""
 	
 	const wrapper = customRender(
 		<LocationProvider history={history}>
