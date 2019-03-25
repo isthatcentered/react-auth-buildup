@@ -71,6 +71,39 @@ Feature( `User can log in`, () => {
 	} )
 } )
 
+Feature( "User can sign-up", () => {
+	Case( "Authorized", () => {
+		
+		Given( () => when( gatekeeper.login( credentialz ) ).thenResolve() )
+		
+		Given( () => page = renderAuthPage( gatekeeper, { query: "?action=signup" } ) )
+		
+		When( async () => await page.signup( credentialz ) )
+		
+		Then( "User is redirected to home", async () => {
+			verify( page.navigate( "/", undefined ) )
+		} )
+	} )
+	
+	Case( "Registration error", () => {
+		const error = { message: "Error from reject", name: "" }
+		
+		Given( () => when( gatekeeper.login( credentialz ) ).thenReject( error ) )
+		
+		Given( () => page = renderAuthPage( gatekeeper, { query: "?action=signup" } ) )
+		
+		When( async () => await page.signup( credentialz ) )
+		
+		Then( "User stays on page", async () => {
+			verify( page.navigate( "/", undefined ), { times: 0 } )
+		} )
+		
+		And( "User can see the error message", async () => {
+			page.getByText( error.message )
+		} )
+	} )
+} )
+
 Feature( "Tabs are controlled by url", () => {
 	Given( () => when( gatekeeper.isAuthenticated() ).thenReturn( false ) )
 	
@@ -124,29 +157,6 @@ Feature( "Tabs are controlled by url", () => {
 	} )
 } )
 
-// Feature( "User can sign-up", () => {
-// 	Case( "Authorized", () => {
-//
-// 		Given( () => when( gatekeeper.login( credentials ) ).thenResolve() )
-//
-// 		Given( () => page = renderAuthPage( gatekeeper ) )
-//
-// 		When( () => {
-// 			// page.switchTab( "signup" )
-// 		} )
-//
-// 		When( async () => await page.login( credentials ) )
-//
-// 		Then( "User is redirected to home", async () => {
-// 			verify( page.navigate( "/", undefined ) )
-// 		} )
-// 	} )
-//
-// 	Case( "Registration error", () => {
-//
-// 	} )
-// } )
-
 
 function renderAuthPage( gatekeeper: Gatekeeper, { query }: { query: string } = { query: "" } )
 {
@@ -165,8 +175,21 @@ function renderAuthPage( gatekeeper: Gatekeeper, { query }: { query: string } = 
 	}
 	
 	
+	async function signup( credentials: credentials )
+	{
+		wrapper.fill( /email/i, credentials.email )
+		
+		wrapper.fill( /password/i, credentials.password )
+		
+		wrapper.submit( /sign me up/i )
+		
+		await tick()
+	}
+	
+	
 	return {
 		login,
+		signup,
 		...wrapper,
 	}
 }
