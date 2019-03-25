@@ -1,7 +1,7 @@
 import * as React from "react"
 import { FormEvent, HTMLAttributes, useContext, useEffect, useState } from "react"
 
-import { And, Case, Feature, Given, Then, When } from "jest-then"
+import { And, Case, Feature, Given, Scenario, Then, When } from "jest-then"
 import { appRender, tick } from "./testUtils"
 import { RouteComponentProps } from "@reach/router"
 import { object, verify, when } from "testdouble"
@@ -154,33 +154,45 @@ Feature( `User can log in`, () => {
 	} )
 } )
 
-Feature( "User can sign-up", () => {
-	Case( "Authorized", () => {
-		
-		Given( () => when( gatekeeper.login( credentials ) ).thenResolve() )
-		
-		Given( () => page = renderAuthPage( gatekeeper ) )
-		
-		When( () => {
-			page.switchTab( "signup" )
-		} )
-		
-		When( async () => await page.login( credentials ) )
-		
-		Then( "User is redirected to home", async () => {
-			verify( page.navigate( "/", undefined ) )
-		} )
-	} )
+Feature( "Tabs are controlled by url", () => {
+	Given( () => when( gatekeeper.isAuthenticated() ).thenReturn( false ) )
 	
-	Case( "Registration error", () => {
-	
+	Scenario( "No tab specified in url", () => {
+		Given( () => page = renderAuthPage( gatekeeper, { query: "" } ) )
+		
+		Then( `Login tab is active by default`, () => {
+			page.getByText( /log me in/i )
+		} )
 	} )
 } )
 
+// Feature( "User can sign-up", () => {
+// 	Case( "Authorized", () => {
+//
+// 		Given( () => when( gatekeeper.login( credentials ) ).thenResolve() )
+//
+// 		Given( () => page = renderAuthPage( gatekeeper ) )
+//
+// 		When( () => {
+// 			// page.switchTab( "signup" )
+// 		} )
+//
+// 		When( async () => await page.login( credentials ) )
+//
+// 		Then( "User is redirected to home", async () => {
+// 			verify( page.navigate( "/", undefined ) )
+// 		} )
+// 	} )
+//
+// 	Case( "Registration error", () => {
+//
+// 	} )
+// } )
 
-function renderAuthPage( gatekeeper: Gatekeeper )
+
+function renderAuthPage( gatekeeper: Gatekeeper, { query }: { query: string } = { query: "" } )
 {
-	const wrapper = appRender( "/auth", { gatekeeper } )
+	const wrapper = appRender( `/auth${query}`, { gatekeeper } )
 	
 	
 	async function login( credentials: credentials )
