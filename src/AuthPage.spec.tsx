@@ -1,5 +1,5 @@
 import * as React from "react"
-import { And, Case, Feature, Given, Scenario, Then, When, xAnd } from "jest-then"
+import { And, Case, Feature, Given, Scenario, Then, When } from "jest-then"
 import { appRender, tick } from "./testUtils"
 import { object, verify, when } from "testdouble"
 import { credentials, Gatekeeper } from "./AuthPage"
@@ -74,18 +74,6 @@ Feature( `User can log in`, () => {
 Feature( "Tabs are controlled by url", () => {
 	Given( () => when( gatekeeper.isAuthenticated() ).thenReturn( false ) )
 	
-	Scenario( "No tab specified in url", () => {
-		Given( () => page = renderAuthPage( gatekeeper, { query: "" } ) )
-		
-		Then( `Login tab is active by default`, () => {
-			page.getByText( /log me in/i )
-		} )
-		
-		And( `Sign up tab is not visible`, () => {
-			expect( () => page.getByText( /Sign me up/i ) ).toThrow()
-		} )
-	} )
-	
 	Scenario( "Login tab specified in url", () => {
 		Given( () => page = renderAuthPage( gatekeeper, { query: "?action=login" } ) )
 		
@@ -111,8 +99,29 @@ Feature( "Tabs are controlled by url", () => {
 		} )
 	} )
 	
+	Scenario( "No tab specified in url", () => {
+		
+		Given( () => page = renderAuthPage( gatekeeper, { query: "" } ) )
+		
+		Then( `Login tab is active by default`, () => {
+			page.getByText( /log me in/i )
+		} )
+	} )
 	
-	// switching back & forth between tabs through url update
+	Scenario( "Triggering a tab switch updates url", () => {
+		
+		Given( () => page = renderAuthPage( gatekeeper, { query: "" } ) )
+		
+		Then( "Correct tab is set via url", () => {
+			page.click( /signup/i )
+			
+			verify( page.navigate( "/auth?action=signup", undefined ) )
+			
+			page.click( /login/i )
+			
+			verify( page.navigate( "/auth?action=login", undefined ) )
+		} )
+	} )
 } )
 
 // Feature( "User can sign-up", () => {

@@ -56,6 +56,12 @@ export function AuthenticationPage( { navigate, location, style = {}, className 
 	}
 	
 	
+	function handleSwitchTab( action: "login" | "signup" ): void
+	{
+		navigate!( `?action=${action}` )
+	}
+	
+	
 	return (
 		<div
 			{...props}
@@ -64,6 +70,14 @@ export function AuthenticationPage( { navigate, location, style = {}, className 
 		>
 			
 			{alert && <Alert type="error">{alert}</Alert>}
+			
+			<button onClick={() => handleSwitchTab( "login" )}>
+				Login
+			</button>
+			
+			<button onClick={() => handleSwitchTab( "signup" )}>
+				Signup
+			</button>
 			
 			<form onSubmit={handleSubmit}>
 				<label>
