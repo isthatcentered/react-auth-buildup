@@ -190,9 +190,9 @@ Feature( "Tabs are controlled by url", () => {
 			page.getByText( /Sign me up/i )
 		} )
 		
-		// And( `Login tab is not visible`, () => {
-		// 	expect( () => page.getByText( /Log me in/i ) ).toThrow()
-		// } )
+		And( `Login tab is not visible`, () => {
+			expect( () => page.getByText( /Log me in/i ) ).toThrow()
+		} )
 	} )
 	
 	
