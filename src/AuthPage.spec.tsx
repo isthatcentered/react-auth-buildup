@@ -164,6 +164,14 @@ Feature( "Tabs are controlled by url", () => {
 			page.getByText( /log me in/i )
 		} )
 	} )
+	
+	Scenario( "Login tab specified in url", () => {
+		Given( () => page = renderAuthPage( gatekeeper, { query: "?action=login" } ) )
+		
+		Then( `Login tab is active by default`, () => {
+			page.getByText( /log me in/i )
+		} )
+	} )
 } )
 
 // Feature( "User can sign-up", () => {
