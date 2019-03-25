@@ -157,6 +157,12 @@ Feature( "Tabs are controlled by url", () => {
 	} )
 } )
 
+// @todo: Find out how to test router route after navigate to enable true tab click in tests
+// @todo: Extract tab tests
+// @todo: Add new integration test to ensure active tab comes from url
+// @todo: Merge signup and login as table test case
+// @todo: Re-evaluate design
+
 
 function renderAuthPage( gatekeeper: Gatekeeper, { query }: { query: string } = { query: "" } )
 {
