@@ -1,7 +1,7 @@
 import * as React from "react"
 import { FormEvent, HTMLAttributes, useContext, useEffect, useState } from "react"
 
-import { And, Case, Feature, Given, Scenario, Then, When } from "jest-then"
+import { And, Case, Feature, Given, Scenario, Then, When, xAnd } from "jest-then"
 import { appRender, tick } from "./testUtils"
 import { RouteComponentProps } from "@reach/router"
 import { object, verify, when } from "testdouble"
@@ -84,6 +84,8 @@ export function AuthenticationPage( { navigate, style = {}, className = "", chil
 				</label>
 				
 				<button type="submit">Log me in</button>
+				
+				Sign me up
 			</form>
 		</div>
 	)
@@ -163,15 +165,38 @@ Feature( "Tabs are controlled by url", () => {
 		Then( `Login tab is active by default`, () => {
 			page.getByText( /log me in/i )
 		} )
+
+		xAnd( `Sign up tab is not visible`, () => {
+			expect( () => page.getByText( /Sign me up/i ) ).toThrow()
+		} )
 	} )
 	
 	Scenario( "Login tab specified in url", () => {
 		Given( () => page = renderAuthPage( gatekeeper, { query: "?action=login" } ) )
 		
-		Then( `Login tab is active by default`, () => {
+		Then( `Login tab is active`, () => {
 			page.getByText( /log me in/i )
 		} )
+		
+		xAnd( `Sign up tab is not visible`, () => {
+			expect( () => page.getByText( /Sign me up/i ) ).toThrow()
+		} )
 	} )
+	
+	Scenario( "Signup tab specified in url", () => {
+		Given( () => page = renderAuthPage( gatekeeper, { query: "?action=signup" } ) )
+		
+		Then( `Sign up tab is active`, () => {
+			page.getByText( /Sign me up/i )
+		} )
+		
+		// And( `Login tab is not visible`, () => {
+		// 	expect( () => page.getByText( /Log me in/i ) ).toThrow()
+		// } )
+	} )
+	
+	
+	// switching back & forth between tabs through url update
 } )
 
 // Feature( "User can sign-up", () => {
