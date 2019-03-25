@@ -1,5 +1,4 @@
 import * as React from "react"
-
 import { And, Case, Feature, Given, Scenario, Then, When, xAnd } from "jest-then"
 import { appRender, tick } from "./testUtils"
 import { object, verify, when } from "testdouble"
@@ -9,7 +8,7 @@ import { credentials, Gatekeeper } from "./AuthPage"
 
 
 const gatekeeper               = object<Gatekeeper>(),
-      credentials: credentials = { email: "user@email.com", password: "$password$" }
+      credentialz: credentials = { email: "user@email.com", password: "$password$" }
 
 let page: ReturnType<typeof renderAuthPage>
 
@@ -42,11 +41,11 @@ Feature( `User can log in`, () => {
 	
 	Case( "Authorized", () => {
 		
-		Given( () => when( gatekeeper.login( credentials ) ).thenResolve() )
+		Given( () => when( gatekeeper.login( credentialz ) ).thenResolve() )
 		
 		Given( () => page = renderAuthPage( gatekeeper ) )
 		
-		When( async () => await page.login( credentials ) )
+		When( async () => await page.login( credentialz ) )
 		
 		Then( "User is redirected to home", async () => {
 			verify( page.navigate( "/", undefined ) )
@@ -56,11 +55,11 @@ Feature( `User can log in`, () => {
 	Case( "Not authorized", () => {
 		const error = { message: "Error from reject", name: "" }
 		
-		Given( () => when( gatekeeper.login( credentials ) ).thenReject( error ) )
+		Given( () => when( gatekeeper.login( credentialz ) ).thenReject( error ) )
 		
 		Given( () => page = renderAuthPage( gatekeeper ) )
 		
-		When( async () => await page.login( credentials ) )
+		When( async () => await page.login( credentialz ) )
 		
 		Then( "User stays on page", async () => {
 			verify( page.navigate( "/", undefined ), { times: 0 } )
@@ -82,7 +81,7 @@ Feature( "Tabs are controlled by url", () => {
 			page.getByText( /log me in/i )
 		} )
 		
-		xAnd( `Sign up tab is not visible`, () => {
+		And( `Sign up tab is not visible`, () => {
 			expect( () => page.getByText( /Sign me up/i ) ).toThrow()
 		} )
 	} )
@@ -94,7 +93,8 @@ Feature( "Tabs are controlled by url", () => {
 			page.getByText( /log me in/i )
 		} )
 		
-		xAnd( `Sign up tab is not visible`, () => {
+		
+		And( `Sign up tab is not visible`, () => {
 			expect( () => page.getByText( /Sign me up/i ) ).toThrow()
 		} )
 	} )

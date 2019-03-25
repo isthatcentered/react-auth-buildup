@@ -3,6 +3,7 @@ import * as React from "react"
 import { FormEvent, HTMLAttributes, useContext, useEffect, useState } from "react"
 import { ServicesContext } from "./ServicesContext"
 import { Alert } from "./Random"
+import { parse } from "query-string"
 
 
 
@@ -27,11 +28,10 @@ export interface AuthenticationPageProps extends RouteComponentProps, HTMLAttrib
 
 export function AuthenticationPage( { navigate, location, style = {}, className = "", children, ...props }: AuthenticationPageProps )
 {
-	const { gatekeeper }      = useContext( ServicesContext ),
-	      [ alert, setAlert ] = useState<string | undefined>( undefined )
+	const { gatekeeper }                                       = useContext( ServicesContext ),
+	      [ alert, setAlert ]                                  = useState<string | undefined>( undefined ),
+	      { action = "login" }: { action: "login" | "signup" } = parse( location!.search ) as any
 	
-	
-	console.log( location!.search ) // <-- START HERE with full app
 	
 	useEffect( () => {
 		if ( gatekeeper.isAuthenticated() )
@@ -80,9 +80,11 @@ export function AuthenticationPage( { navigate, location, style = {}, className 
 					       placeholder="Password"/>
 				</label>
 				
-				<button type="submit">Log me in</button>
-				
-				Sign me up
+				<button type="submit">
+					{action === "signup" ?
+					 "Sign me up" :
+					 "Log me in"}
+				</button>
 			</form>
 		</div>
 	)
