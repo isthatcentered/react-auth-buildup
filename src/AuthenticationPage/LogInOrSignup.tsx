@@ -1,4 +1,4 @@
-// import React, { HTMLAttributes } from "react"
+import React, { HTMLAttributes } from "react"
 // import { Alert, alertKind, Loader } from "../Random"
 // import { authenticationCredentials, AuthenticationForm } from "./AuthenticationForm"
 //

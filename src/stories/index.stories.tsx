@@ -1,5 +1,5 @@
 import React, { HTMLAttributes } from "react";
-
+/*
 import { storiesOf } from "@storybook/react";
 import { Alert } from "../Random"
 
@@ -76,3 +76,4 @@ function makeAuthPageView( props: Partial<LoginOrSignupProps> = {} )
 	
 	return <Display><LoginOrSignup {...safeProps}  /></Display>
 }
+*/
