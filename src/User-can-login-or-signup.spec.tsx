@@ -41,14 +41,13 @@ Feature.each( [ "login", "signup" ] as ("login" | "signup")[] )
 	Given( () => when( gatekeeper.isAuthenticated() ).thenReturn( false ) )
 	
 	Case( "Authorized", () => {
-		
 		Given( () => when( gatekeeper[ action ]( credentialz ) ).thenResolve() )
 		
 		Given( () => page = renderAuthPage( gatekeeper ) )
 		
 		When( async () => await page.switchTab( action ) )
 		
-		When( async () => await wait( () => page[action]( credentialz ) ) )
+		When( async () => await wait( () => page[ action ]( credentialz ) ) )
 		
 		Then( "User is redirected to home", async () => {
 			expect( page.history.location.pathname ).toBe( "/" )
@@ -64,7 +63,7 @@ Feature.each( [ "login", "signup" ] as ("login" | "signup")[] )
 		
 		When( () => page.switchTab( action ) )
 		
-		When( async () => await wait( () => page[action]( credentialz ) ) )
+		When( async () => await wait( () => page[ action ]( credentialz ) ) )
 		
 		Then( "User stays on page", async () => {
 			expect( page.history.location.pathname ).toBe( "/auth" )
@@ -78,8 +77,9 @@ Feature.each( [ "login", "signup" ] as ("login" | "signup")[] )
 
 // @done: Find out how to test router route after navigate to enable true tab click in tests
 // @done: Extract tab tests
-// @done: move alert back into login or signup (setError, setSucces as callback to onAuth ?)
-// @todo: Merge signup and login as table test case
+// @done: Merge signup and login as table test case
+// @todo: remove "login" | "signup" duplication
+// @todo: move alert back into login or signup (setError, setSucces as callback to onAuth ?)
 // @todo: Re-evaluate design
 
 
