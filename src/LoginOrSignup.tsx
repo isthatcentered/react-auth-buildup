@@ -7,13 +7,13 @@ import { credentials } from "./AuthPage"
 
 export interface LoginOrSignupProps extends HTMLAttributes<HTMLDivElement>
 {
-	action: "login" | "signup"
+	tab: "login" | "signup"
 	onClickSwitchTab: ( tab: "login" | "signup" ) => void
 	onAuthSubmit: ( type: "login" | "signup", credentials: credentials ) => Promise<void>
 }
 
 
-export function LoginOrSignup( { onClickSwitchTab, onAuthSubmit, action, style = {}, className = "", children, ...props }: LoginOrSignupProps )
+export function LoginOrSignup( { onClickSwitchTab, onAuthSubmit, tab, style = {}, className = "", children, ...props }: LoginOrSignupProps )
 {
 	
 	
@@ -28,7 +28,7 @@ export function LoginOrSignup( { onClickSwitchTab, onAuthSubmit, action, style =
 		if ( !email || !password )
 			return
 		
-		onAuthSubmit( action, { email, password } )
+		onAuthSubmit( tab, { email, password } )
 	}
 	
 	
@@ -63,7 +63,7 @@ export function LoginOrSignup( { onClickSwitchTab, onAuthSubmit, action, style =
 				</label>
 				
 				<button type="submit">
-					{action === "signup" ?
+					{tab === "signup" ?
 					 "Sign me up" :
 					 "Log me in"}
 				</button>

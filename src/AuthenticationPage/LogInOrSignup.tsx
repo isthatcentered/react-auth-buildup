@@ -23,13 +23,13 @@ import React, { HTMLAttributes } from "react"
 // }
 //
 // export type LogInOrSignupStateProps = (unprocessed | processed | processing) & {
-// 	action: "login" | "signup",
+// 	tab: "login" | "signup",
 // }
 //
 // export type LoginOrSignupProps = actions & LogInOrSignupStateProps
 //
 //
-// export function LoginOrSignup( { onAuthenticate, loading, alert, action, ...props }: LoginOrSignupProps )
+// export function LoginOrSignup( { onAuthenticate, loading, alert, tab, ...props }: LoginOrSignupProps )
 // {
 //
 // 	return (
@@ -41,12 +41,12 @@ import React, { HTMLAttributes } from "react"
 // 			<nav>
 // 				<ul className="list-reset flex justify-center text-center">
 // 					<li className="flex-grow">
-// 						<TabButton active={action === "login"}>
+// 						<TabButton active={tab === "login"}>
 // 							Login
 // 						</TabButton>
 // 					</li>
 // 					<li className="flex-grow">
-// 						<TabButton active={action === "signup"}>
+// 						<TabButton active={tab === "signup"}>
 // 							Signup
 // 						</TabButton>
 // 					</li>
@@ -60,9 +60,9 @@ import React, { HTMLAttributes } from "react"
 // 				</Alert>)}
 //
 // 			<AuthenticationForm
-// 				onAuthenticate={credentials => onAuthenticate( action, credentials )}
+// 				onAuthenticate={credentials => onAuthenticate( tab, credentials )}
 // 				processing={loading || (alert && alert.type === "success") || false}
-// 				cta={action === "login" ?
+// 				cta={tab === "login" ?
 // 				     "Log me in" :
 // 				     "Sign me up"}
 // 			/>

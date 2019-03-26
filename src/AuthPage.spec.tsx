@@ -19,7 +19,7 @@ Feature( "Active tab is controlled by url", () => {
 			const location = { search: "" } as WindowLocation,
 			      { view } = renderAuthPage( { location } )
 			
-			expect( view.action ).toBe( "login" )
+			expect( view.tab ).toBe( "login" )
 		} )
 	} )
 	
@@ -28,7 +28,7 @@ Feature( "Active tab is controlled by url", () => {
 			const location = { search: "?action=__INVALID__" } as WindowLocation,
 			      { view } = renderAuthPage( { location } )
 			
-			expect( view.action ).toBe( "login" )
+			expect( view.tab ).toBe( "login" )
 		} )
 	} )
 	
@@ -37,14 +37,14 @@ Feature( "Active tab is controlled by url", () => {
 			const location = { search: "?action=login" } as WindowLocation,
 			      { view } = renderAuthPage( { location } )
 			
-			expect( view.action ).toBe( "login" )
+			expect( view.tab ).toBe( "login" )
 		} )
 		
 		test( "signup tab is shown", () => {
 			const location = { search: "?action=signup" } as WindowLocation,
 			      { view } = renderAuthPage( { location } )
 			
-			expect( view.action ).toBe( "signup" )
+			expect( view.tab ).toBe( "signup" )
 		} )
 	} )
 	

@@ -70,7 +70,7 @@ export function AuthenticationPage( { navigate, location, style = {}, className 
 			<LoginOrSignup
 				onClickSwitchTab={tab => navigate!( `?action=${tab}` )}
 				onAuthSubmit={handleSubmit}
-				action={sanitizeAction( action )}
+				tab={sanitizeAction( action )}
 			/>
 		</div>
 	)

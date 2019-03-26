@@ -6,7 +6,7 @@ import { Alert } from "../Random"
 import "../index.scss"
 import { LoginOrSignupProps, LoginOrSignup } from "../AuthenticationPage/LogInOrSignup"
 //@ts-ignore
-import { action } from "@storybook/addon-actions";
+import { tab } from "@storybook/addon-actions";
 //@ts-ignore
 // import { linkTo } from "@storybook/addon-links";
 
@@ -30,10 +30,10 @@ storiesOf( "Alert", module )
 
 storiesOf( "LoginOrSignup", module )
 	.add( "Logging in", () =>
-		makeAuthPageView( { action: "login" } ) )
+		makeAuthPageView( { tab: "login" } ) )
 	
 	.add( "Signing up", () =>
-		makeAuthPageView( { action: "signup" } ) )
+		makeAuthPageView( { tab: "signup" } ) )
 	
 	.add( "Processing", () =>
 		makeAuthPageView( { loading: true } ) )
@@ -67,10 +67,10 @@ storiesOf( "LoginOrSignup", module )
 function makeAuthPageView( props: Partial<LoginOrSignupProps> = {} )
 {
 	const safeProps: LoginOrSignupProps = {
-		action:         "login",
+		tab:         "login",
 		loading:        false,
 		alert:          undefined,
-		onAuthenticate: action( "submit" ),
+		onAuthenticate: tab( "submit" ),
 		...props as any, // we enforced states, ts doesn't like mixing in Partial<props>
 	}
 	
