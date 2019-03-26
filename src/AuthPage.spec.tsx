@@ -210,20 +210,7 @@ function renderAuthPage( gatekeeper: Gatekeeper, { query }: { query: string } = 
 	
 	function switchTab( tab: "login" | "signup" ): void
 	{
-		switch ( tab ) {
-			
-			case "login":
-				wrapper.click( /login/i )
-				break;
-			
-			case "signup":
-				wrapper.click( /signup/i )
-				break;
-			
-			default:
-				const shouldNotBeReached: never = tab
-				break;
-		}
+		wrapper.click( new RegExp( tab, "i" ) )
 	}
 	
 	
