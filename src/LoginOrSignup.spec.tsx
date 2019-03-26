@@ -2,8 +2,7 @@ import * as React from "react"
 import { Feature } from "jest-then";
 import { customRender } from "./testUtils"
 import { LoginOrSignup, LoginOrSignupProps } from "./LoginOrSignup"
-import { func, object, verify } from "testdouble"
-import { ServicesContainer } from "./ServicesContext"
+import { func, verify } from "testdouble"
 
 
 
@@ -14,8 +13,6 @@ Feature( "User can switch tab", () => {
 		
 		click( /signup/i )
 		verify( onClickSwitchTab( "signup" ) )
-		
-		// updateWrapperProps( { action: "signup" } )
 		
 		click( /login/i )
 		verify( onClickSwitchTab( "login" ) )
@@ -32,14 +29,12 @@ function renderLoginOrSignup( props: Partial<LoginOrSignupProps> = {} )
 		...props,
 	}
 	
-	const wrapper = customRender( <LoginOrSignup {..._props}/>, object<ServicesContainer>() ) // @todo: remove that with a default
+	const wrapper = customRender( <LoginOrSignup {..._props}/> )
 	
 	return {
 		...wrapper,
 		props: _props,
 	}
-	
-	// @todo: work on typescript default parameters setup
 }
 
 

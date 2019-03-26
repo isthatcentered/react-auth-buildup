@@ -4,7 +4,7 @@ import { ReactElement } from "react"
 import { createHistory, createMemorySource, LocationProvider } from "@reach/router"
 import { App } from "./App"
 import { ServicesContainer, ServicesContext } from "./ServicesContext"
-import { LoginOrSignup, LoginOrSignupProps } from "./LoginOrSignup"
+import { object } from "testdouble"
 
 
 
@@ -33,7 +33,7 @@ export function tick(): Promise<undefined>
 }
 
 
-export function customRender( component: ReactElement<any>, services: Partial<ServicesContainer> )
+export function customRender( component: ReactElement<any>, services: Partial<ServicesContainer> = object<ServicesContainer>() )
 {
 	const utils = render(
 		<ServicesContext.Provider value={services as ServicesContainer}>
