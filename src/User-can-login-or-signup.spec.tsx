@@ -109,33 +109,8 @@ Feature( "User can sign-up", () => {
 	} )
 } )
 
-Feature( "Tabs are controlled by url", () => {
-	Given( () => when( gatekeeper.isAuthenticated() ).thenReturn( false ) )
-	
-	Scenario( "Triggering a tab switch updates url", () => {
-		
-		Given( () => page = renderAuthPage( gatekeeper, { query: "" } ) )
-		
-		Then( "Correct tab is set via url", async () => {
-			page.click( /signup/i )
-			
-			expect( page.history.location ).toMatchObject( {
-				pathname: "/auth",
-				search:   "action=signup",
-			} )
-			
-			page.click( /login/i )
-			
-			expect( page.history.location ).toMatchObject( {
-				pathname: "/auth",
-				search:   "action=login",
-			} )
-		} )
-	} )
-} )
-
 // @done: Find out how to test router route after navigate to enable true tab click in tests
-// @todo: Extract tab tests
+// @done: Extract tab tests
 // @todo: move alert back into login or signup (setError, setSucces as callback to onAuth ?)
 // @todo: Add new integration test to ensure active tab comes from url
 // @todo: Merge signup and login as table test case
