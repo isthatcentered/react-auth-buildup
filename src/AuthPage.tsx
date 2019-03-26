@@ -4,7 +4,7 @@ import { HTMLAttributes, useContext, useEffect, useState } from "react"
 import { ServicesContext } from "./ServicesContext"
 import { Alert } from "./Random"
 import { parse } from "query-string"
-import { LoginOrSignup } from "./LoginOrSignup"
+import { LoginOrSignup, LoginOrSignupProps } from "./LoginOrSignup"
 
 
 
@@ -31,32 +31,20 @@ export interface AuthenticationPageProps extends RouteComponentProps, HTMLAttrib
 
 export function AuthenticationPage( { navigate, location, style = {}, className = "", children, ...props }: AuthenticationPageProps )
 {
-	const { gatekeeper }                           = useContext( ServicesContext ),
-	      [ alert, setAlert ]                      = useState<string | undefined>( undefined ),
-	      { action = "login" }: { action: string } = parse( location!.search ) as any
-	
-	
 	useEffect( () => {
 		if ( gatekeeper.isAuthenticated() )
 			navigate!( "/" )
 	} )
 	
+	const { gatekeeper }      = useContext( ServicesContext ),
+	      [ alert, setAlert ] = useState<string | undefined>( undefined ),
+	      { action }          = parse( location!.search ) as { action: LoginOrSignupProps["tab"] }
 	
-	function handleSubmit( action: "login" | "signup", credentials: credentials )
-	{
-		return gatekeeper[ action ]( credentials )
+	
+	const handleSubmit: LoginOrSignupProps["onAuthSubmit"] = ( action, credentials ) =>
+		gatekeeper[ action ]( credentials )
 			.then( () => navigate!( "/" ) )
 			.catch( ( err: Error ) => setAlert( err.message ) )
-	}
-	
-	
-	function sanitizeAction( action: string ): "login" | "signup"
-	{
-		if ( action !== "login" && action !== "signup" )
-			return "login"
-		
-		return action
-	}
 	
 	
 	return (
@@ -70,7 +58,7 @@ export function AuthenticationPage( { navigate, location, style = {}, className 
 			<LoginOrSignup
 				onClickSwitchTab={tab => navigate!( `?action=${tab}` )}
 				onAuthSubmit={handleSubmit}
-				tab={sanitizeAction( action )}
+				tab={action}
 			/>
 		</div>
 	)

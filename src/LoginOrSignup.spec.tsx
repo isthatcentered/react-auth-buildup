@@ -7,6 +7,14 @@ import { func, verify } from "testdouble"
 
 
 
+Feature( "Login tab is active by default", () => {
+	test( `Invalid param`, () => {
+		const { getByText } = renderLoginOrSignup( { tab: "__INVALID__" as any } )
+		getByText( /log me in/i )
+	} )
+} )
+
+
 Feature( "User can switch tab", () => {
 	test( `Calls "onClickSwitchTab" prop with tab to activate`, () => {
 		const { click, props: { onClickSwitchTab } } = renderLoginOrSignup( { tab: "login" } )
@@ -18,6 +26,7 @@ Feature( "User can switch tab", () => {
 		verify( onClickSwitchTab( "login" ) )
 	} )
 } )
+
 
 
 function renderLoginOrSignup( props: Partial<LoginOrSignupProps> = {} )

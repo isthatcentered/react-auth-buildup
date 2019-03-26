@@ -4,6 +4,7 @@ import { appRender, tick } from "./testUtils"
 import { object, when } from "testdouble"
 import { credentials, Gatekeeper } from "./AuthPage"
 import { wait } from "react-testing-library";
+import { LoginOrSignupProps } from "./LoginOrSignup"
 
 
 
@@ -36,7 +37,7 @@ Feature( `User is redirected to home if already logged in`, () => {
 	} )
 } )
 
-Feature.each( [ "login", "signup" ] as ("login" | "signup")[] )
+Feature.each( [ "login", "signup" ] as LoginOrSignupProps["tab"][] )
 ( `User can %s`, ( action ) => {
 	Given( () => when( gatekeeper.isAuthenticated() ).thenReturn( false ) )
 	
@@ -45,7 +46,7 @@ Feature.each( [ "login", "signup" ] as ("login" | "signup")[] )
 		
 		Given( () => page = renderAuthPage( gatekeeper ) )
 		
-		When( async () => await page.switchTab( action ) )
+		When( () => page.switchTab( action ) )
 		
 		When( async () => await wait( () => page[ action ]( credentialz ) ) )
 		
@@ -78,7 +79,7 @@ Feature.each( [ "login", "signup" ] as ("login" | "signup")[] )
 // @done: Find out how to test router route after navigate to enable true tab click in tests
 // @done: Extract tab tests
 // @done: Merge signup and login as table test case
-// @todo: remove "login" | "signup" duplication
+// @done: remove "login" | "signup" duplication
 // @todo: move alert back into login or signup (setError, setSucces as callback to onAuth ?)
 // @todo: Re-evaluate design
 

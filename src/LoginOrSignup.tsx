@@ -15,6 +15,8 @@ export interface LoginOrSignupProps extends HTMLAttributes<HTMLDivElement>
 
 export function LoginOrSignup( { onClickSwitchTab, onAuthSubmit, tab, style = {}, className = "", children, ...props }: LoginOrSignupProps )
 {
+	const safeTab = sanitizeTab( tab )
+	
 	function handleSubmit( e: FormEvent<HTMLFormElement> )
 	{
 		e.preventDefault()
@@ -26,7 +28,15 @@ export function LoginOrSignup( { onClickSwitchTab, onAuthSubmit, tab, style = {}
 		if ( !email || !password )
 			return
 		
-		onAuthSubmit( tab, { email, password } )
+		onAuthSubmit( safeTab, { email, password } )
+	}
+	
+	
+	function sanitizeTab( tab: string ): LoginOrSignupProps["tab"]
+	{
+		return tab !== "login" && tab !== "signup" ?
+		       "login" :
+		       tab
 	}
 	
 	
@@ -61,7 +71,7 @@ export function LoginOrSignup( { onClickSwitchTab, onAuthSubmit, tab, style = {}
 				</label>
 				
 				<button type="submit">
-					{tab === "signup" ?
+					{safeTab === "signup" ?
 					 "Sign me up" :
 					 "Log me in"}
 				</button>
