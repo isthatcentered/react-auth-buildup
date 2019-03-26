@@ -4,6 +4,7 @@ import { ReactElement } from "react"
 import { createHistory, createMemorySource, LocationProvider } from "@reach/router"
 import { App } from "./App"
 import { ServicesContainer, ServicesContext } from "./ServicesContext"
+import { LoginOrSignup, LoginOrSignupProps } from "./LoginOrSignup"
 
 
 
@@ -52,7 +53,6 @@ export function customRender( component: ReactElement<any>, services: Partial<Se
 	
 	const submit = ( label: RegExp ) =>
 		fireEvent.submit( (utils.getByText( label ) as HTMLElement).closest( "form" )! )
-	
 	
 	return {
 		...utils,
