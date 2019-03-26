@@ -10,26 +10,27 @@ testDoubleAdapter( td, jest )
 afterEach( () => {
 	cleanup() // react-testing-library-setup (will have to check performance impact without it as global)
 	td.reset()
+	jest.resetAllMocks()
 } )
 
 declare global
 {
 	interface Array<T>
-{
-	last(): T | undefined
-	
-	first(): T | undefined
-	
-	hasDuplicates: () => boolean
-}
+	{
+		last(): T | undefined
+		
+		first(): T | undefined
+		
+		hasDuplicates: () => boolean
+	}
 }
 
 declare namespace jest
 {
 	interface MockInstance<T, Y extends any[]>
-{
-	whatever: string
-}
+	{
+		whatever: string
+	}
 }
 
 Object.defineProperties( Array.prototype, {

@@ -31,9 +31,9 @@ export interface AuthenticationPageProps extends RouteComponentProps, HTMLAttrib
 
 export function AuthenticationPage( { navigate, location, style = {}, className = "", children, ...props }: AuthenticationPageProps )
 {
-	const { gatekeeper }                                       = useContext( ServicesContext ),
-	      [ alert, setAlert ]                                  = useState<string | undefined>( undefined ),
-	      { action = "login" }: { action: "login" | "signup" } = parse( location!.search ) as any
+	const { gatekeeper }                           = useContext( ServicesContext ),
+	      [ alert, setAlert ]                      = useState<string | undefined>( undefined ),
+	      { action = "login" }: { action: string } = parse( location!.search ) as any
 	
 	
 	useEffect( () => {
@@ -50,9 +50,12 @@ export function AuthenticationPage( { navigate, location, style = {}, className 
 	}
 	
 	
-	function handleSwitchTab( action: "login" | "signup" ): void
+	function sanitizeAction( action: string ): "login" | "signup"
 	{
-		navigate!( `?action=${action}` )
+		if ( action !== "login" && action !== "signup" )
+			return "login"
+		
+		return action
 	}
 	
 	
@@ -65,9 +68,9 @@ export function AuthenticationPage( { navigate, location, style = {}, className 
 			{alert && <Alert type="error">{alert}</Alert>}
 			
 			<LoginOrSignup
-				onClickSwitchTab={handleSwitchTab}
+				onClickSwitchTab={tab => navigate!( `?action=${tab}` )}
 				onAuthSubmit={handleSubmit}
-				action={action}
+				action={sanitizeAction( action )}
 			/>
 		</div>
 	)
