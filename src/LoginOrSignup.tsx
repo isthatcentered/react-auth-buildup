@@ -8,15 +8,13 @@ import { credentials } from "./AuthPage"
 export interface LoginOrSignupProps extends HTMLAttributes<HTMLDivElement>
 {
 	tab: "login" | "signup"
-	onClickSwitchTab: ( tab: "login" | "signup" ) => void
-	onAuthSubmit: ( type: "login" | "signup", credentials: credentials ) => Promise<void>
+	onClickSwitchTab: ( tab: this["tab"] ) => void
+	onAuthSubmit: ( type: this["tab"], credentials: credentials ) => Promise<void>
 }
 
 
 export function LoginOrSignup( { onClickSwitchTab, onAuthSubmit, tab, style = {}, className = "", children, ...props }: LoginOrSignupProps )
 {
-	
-	
 	function handleSubmit( e: FormEvent<HTMLFormElement> )
 	{
 		e.preventDefault()
