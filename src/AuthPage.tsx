@@ -71,37 +71,60 @@ export function AuthenticationPage( { navigate, location, style = {}, className 
 			className={`${className} AuthenticationPage`}
 		>
 			
-			{alert && <Alert type="error">{alert}</Alert>}
-			
-			<button onClick={() => handleSwitchTab( "login" )}>
-				Login
-			</button>
-			
-			<button onClick={() => handleSwitchTab( "signup" )}>
-				Signup
-			</button>
-			
-			<form onSubmit={handleSubmit}>
-				<label>
-					Email
-					<input type="email"
-					       name="email"
-					       placeholder="Email"/>
-				</label>
+			<LoginOrSignup>
 				
-				<label>
-					Password
-					<input type="password"
-					       name="password"
-					       placeholder="Password"/>
-				</label>
+				{alert && <Alert type="error">{alert}</Alert>}
 				
-				<button type="submit">
-					{action === "signup" ?
-					 "Sign me up" :
-					 "Log me in"}
+				<button onClick={() => handleSwitchTab( "login" )}>
+					Login
 				</button>
-			</form>
+				
+				<button onClick={() => handleSwitchTab( "signup" )}>
+					Signup
+				</button>
+				
+				<form onSubmit={handleSubmit}>
+					<label>
+						Email
+						<input type="email"
+						       name="email"
+						       placeholder="Email"/>
+					</label>
+					
+					<label>
+						Password
+						<input type="password"
+						       name="password"
+						       placeholder="Password"/>
+					</label>
+					
+					<button type="submit">
+						{action === "signup" ?
+						 "Sign me up" :
+						 "Log me in"}
+					</button>
+				</form>
+			</LoginOrSignup>
+		</div>
+	)
+}
+
+
+export interface LoginOrSignupProps extends HTMLAttributes<HTMLDivElement>
+{
+
+}
+
+
+export function LoginOrSignup( { style = {}, className = "", children, ...props }: LoginOrSignupProps )
+{
+	return (
+		<div
+			{...props}
+			style={{ ...style }}
+			className={`${className} LoginOrSignup`}
+		>
+			{children}
 		</div>
 	)
 }
