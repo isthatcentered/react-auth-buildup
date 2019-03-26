@@ -170,6 +170,7 @@ Feature( "Tabs are controlled by url", () => {
 
 // @done: Find out how to test router route after navigate to enable true tab click in tests
 // @todo: Extract tab tests
+// @todo: move alert back into login or signup (setError, setSucces as callback to onAuth ?)
 // @todo: Add new integration test to ensure active tab comes from url
 // @todo: Merge signup and login as table test case
 // @todo: Re-evaluate design
