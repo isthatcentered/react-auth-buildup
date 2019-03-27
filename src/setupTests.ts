@@ -3,6 +3,7 @@ import { cleanup } from "react-testing-library" // https://testing-library.com/d
 import "jest-dom/extend-expect" // https://www.npmjs.com/package/jest-dom
 // @ts-ignore
 import testDoubleAdapter from "testdouble-jest" // https://github.com/testdouble/testdouble-jest
+import "jest-then"
 
 testDoubleAdapter( td, jest )
 

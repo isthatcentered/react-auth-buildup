@@ -1,5 +1,4 @@
 import * as React from "react"
-import { Feature } from "jest-then"
 import { AuthenticationPage, AuthenticationPageProps } from "./AuthPage"
 import { NavigateFn, WindowLocation } from "@reach/router"
 import { customRender } from "./testUtils"

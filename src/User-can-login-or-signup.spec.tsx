@@ -1,5 +1,4 @@
 import * as React from "react"
-import { And, Case, Feature, Given, Then, When } from "jest-then"
 import { appRender, tick } from "./testUtils"
 import { object, when } from "testdouble"
 import { credentials, Gatekeeper } from "./AuthPage"
