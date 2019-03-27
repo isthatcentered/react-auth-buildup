@@ -1,6 +1,8 @@
 import * as React from "react"
 import { FormEvent, HTMLAttributes } from "react"
 import { credentials } from "./AuthPage"
+import { Input } from "./stories/index.stories"
+import { Button } from "./Random"
 
 
 
@@ -16,6 +18,7 @@ export interface LoginOrSignupProps extends HTMLAttributes<HTMLDivElement>
 export function LoginOrSignup( { onClickSwitchTab, onAuthSubmit, tab, style = {}, className = "", children, ...props }: LoginOrSignupProps )
 {
 	const safeTab = sanitizeTab( tab )
+	
 	
 	function handleSubmit( e: FormEvent<HTMLFormElement> )
 	{
@@ -43,39 +46,81 @@ export function LoginOrSignup( { onClickSwitchTab, onAuthSubmit, tab, style = {}
 	return (
 		<div
 			{...props}
-			style={{ ...style }}
-			className={`${className} LoginOrSignup`}
+			className={`${className} LoginOrSignup bg-white rounded shadow-md overflow-hidden`}
+			style={{ ...style, width: 440, maxWidth: "100%" }}
 		>
 			
-			<button onClick={() => onClickSwitchTab( "login" )}>
-				Login
-			</button>
+			<nav>
+				<ul className="list-reset flex justify-center text-center mb-8">
+					<li className="flex-grow">
+						<TabButton active={tab === "login"}
+						           onClick={() => onClickSwitchTab( "login" )}
+						>
+							Login
+						</TabButton>
+					</li>
+					<li className="flex-grow">
+						<TabButton active={tab === "signup"}
+						           onClick={() => onClickSwitchTab( "signup" )}
+						>
+							Signup
+						</TabButton>
+					</li>
+				</ul>
+			</nav>
 			
-			<button onClick={() => onClickSwitchTab( "signup" )}>
-				Signup
-			</button>
-			
-			<form onSubmit={handleSubmit}>
-				<label>
+			<form className="px-8 pb-8"
+			      onSubmit={handleSubmit}
+			>
+				<Input type="email"
+				       name="email"
+				       placeholder="Email"
+				       className="mb-4"
+				>
 					Email
-					<input type="email"
-					       name="email"
-					       placeholder="Email"/>
-				</label>
+				</Input>
 				
-				<label>
+				<Input type="password"
+				       name="password"
+				       placeholder="Password"
+				       className="mb-8"
+				>
 					Password
-					<input type="password"
-					       name="password"
-					       placeholder="Password"/>
-				</label>
+				</Input>
 				
-				<button type="submit">
+				<Button type="submit">
 					{safeTab === "signup" ?
 					 "Sign me up" :
 					 "Log me in"}
-				</button>
+				</Button>
 			</form>
+		</div>
+	)
+}
+
+
+
+interface TabButtonProps extends HTMLAttributes<HTMLDivElement>
+{
+	active: boolean
+}
+
+
+function TabButton( { active, style = {}, className = "", children, ...props }: TabButtonProps )
+{
+	
+	const styles = active ?
+	               [ "font-bold" ] :
+	               [ "border", "border-grey-lighter", "bg-grey-lightest" ]
+	return (
+		<div
+			{...props}
+			style={{ ...style }}
+			className={`${className} TabButton`}
+		>
+			<button className={`p-4 w-full text-grey-darker ${styles.join( " " )}`}>
+				{children}
+			</button>
 		</div>
 	)
 }

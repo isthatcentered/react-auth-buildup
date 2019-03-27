@@ -1,5 +1,5 @@
 import "../index.scss"
-import React, { HTMLAttributes } from "react"
+import React, { HTMLAttributes, InputHTMLAttributes } from "react"
 import { storiesOf } from "@storybook/react"
 import { LoginOrSignup } from "../LoginOrSignup"
 //@ts-ignore
@@ -14,8 +14,41 @@ function Display( { children }: HTMLAttributes<HTMLDivElement> )
 }
 
 
+export interface InputProps extends InputHTMLAttributes<HTMLInputElement>
+{
 
-storiesOf( "Button", module )
+}
+
+
+export function Input( { style = {}, className = "", children, ...props }: InputProps )
+{
+	
+	return (
+		<label className="block text-grey-darker font-bold">
+			<span className="mb-2 block">{children}</span>
+			<input
+				{...props}
+				style={{ ...style }}
+				className={`${className} Input shadow appearance-none border rounded w-full p-3 text-grey-darker leading-tight focus:outline-none focus:shadow-outline`}
+			/>
+		</label>
+	)
+}
+
+
+storiesOf( "Input", module )
+	.add( "Default", () => (
+		<Display>
+			<Input
+				type="email"
+				placeholder="email"
+			>
+				Email
+			</Input>
+		</Display>) )
+
+
+storiesOf( "LoginOrSignup", module )
 	.add( "Default", () => (
 		<Display>
 			<LoginOrSignup
