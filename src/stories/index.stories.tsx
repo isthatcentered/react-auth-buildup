@@ -1,20 +1,40 @@
-import React, { HTMLAttributes } from "react";
+import "../index.scss"
+import React, { HTMLAttributes } from "react"
+import { storiesOf } from "@storybook/react"
+import { LoginOrSignup } from "../LoginOrSignup"
+//@ts-ignore
+import { action } from "@storybook/addon-actions";
+
+
+
+
+function Display( { children }: HTMLAttributes<HTMLDivElement> )
+{
+	return <div className="min-h-screen flex items-center justify-center">{children}</div>
+}
+
+
+
+storiesOf( "Button", module )
+	.add( "Default", () => (
+		<Display>
+			<LoginOrSignup
+				tab="login"
+				onClickSwitchTab={action( "Switch tab" )}
+				onAuthSubmit={action( "Submit" )}
+			/>
+		</Display>) )
+
+
+
 /*
-import { storiesOf } from "@storybook/react";
 import { Alert } from "../Random"
 
-import "../index.scss"
 import { LoginOrSignupProps, LoginOrSignup } from "../AuthenticationPage/LogInOrSignup"
-//@ts-ignore
-import { tab } from "@storybook/addon-actions";
 //@ts-ignore
 // import { linkTo } from "@storybook/addon-links";
 
 
-function Display( { children }: HTMLAttributes )
-{
-	return <div className="min-h-screen flex items-center justify-center">{children}</div>
-}
 
 
 storiesOf( "Alert", module )
