@@ -14,7 +14,6 @@ Feature( "Login tab is active by default", () => {
 	} )
 } )
 
-
 Feature( "User can switch tab", () => {
 	test( `Calls "onClickSwitchTab" prop with tab to activate`, () => {
 		const { click, props: { onClickSwitchTab } } = renderLoginOrSignup( { tab: "login" } )

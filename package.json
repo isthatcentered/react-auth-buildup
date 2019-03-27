@@ -38,7 +38,7 @@
         "@storybook/addon-actions": "^5.0.3",
         "@storybook/addon-links": "^5.0.3",
         "@storybook/addons": "^5.0.3",
-        "@storybook/react": "^5.0.3",
+        "@storybook/react": "^5.0.5",
         "@types/query-string": "^6.3.0",
         "@types/reach__router": "^1.2.3",
         "@types/storybook__addon-options": "^4.0.1",
